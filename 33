@@ -1,0 +1,5656 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily OpEx Report - Quality Dashboard</title>
+    <script src="static/css/js/chart.min.js"></script>
+    <link rel="stylesheet" href="static/css/all.min.css">
+    <link rel="stylesheet" href="static/css/css2.css">
+    <link rel="stylesheet" href="/static/css/section-navigation.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/meeting-actions.css') }}">
+
+```
+<style>
+```
+
+/* ============================================ */
+/* EXPIRING SOON ALERTS - row styling           */
+/* ============================================ */
+.quality-alert-expiring {
+background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+border-left: 4px solid #f59e0b !important;
+}
+
+.quality-alert-expiring:hover {
+background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+}
+
+.expiring-badge {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+padding: 0.3rem 0.8rem;
+border-radius: 20px;
+font-size: 0.9rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.03em;
+}
+
+.expiring-badge.expires-today {
+background: linear-gradient(135deg, #fef2f2, #fee2e2);
+color: #dc2626;
+border: 1px solid #fca5a5;
+animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.expiring-badge.expires-soon {
+background: linear-gradient(135deg, #fffbeb, #fef3c7);
+color: #b45309;
+border: 1px solid #fcd34d;
+}
+
+@keyframes pulse-warning {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Updated SDR Image Preview Styles */
+.sdr-image-preview {
+position: relative;
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.sdr-image-icon {
+cursor: pointer;
+padding: 0.35rem 0.75rem;
+border-radius: 8px;
+background: linear-gradient(135deg, #3f567a 0%, #5c6f94 100%);
+border: 1px solid #cbd5e1;
+transition: all 0.2s ease;
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+font-size: 0.9rem;
+color: white;
+font-weight: 600;
+}
+
+.sdr-image-icon:hover {
+background: linear-gradient(135deg, #2c3e50 0%, #3f567a 100%);
+transform: translateY(-1px);
+box-shadow: 0 4px 12px rgba(63, 86, 122, 0.3);
+}
+
+.sdr-image-tooltip {
+display: none;
+position: absolute;
+bottom: calc(100% + 15px);
+left: 50%;
+transform: translateX(-50%);
+z-index: 10000;
+background: white;
+border: 3px solid #3f567a;
+border-radius: 16px;
+padding: 1.5rem;
+box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+min-width: 800px;  /* Increased from 400px */
+max-width: 1000px;  /* Increased from 600px */
+}
+
+.sdr-image-tooltip.active {
+display: block;
+animation: fadeInScale 0.2s ease;
+}
+
+@keyframes fadeInScale {
+from {
+opacity: 0;
+transform: translateX(-50%) scale(0.95);
+}
+to {
+opacity: 1;
+transform: translateX(-50%) scale(1);
+}
+}
+
+.sdr-image-tooltip img {
+width: 100%;
+height: auto;
+border-radius: 12px;
+display: block;
+max-height: 500px;  /* Increased from auto */
+object-fit: contain;
+}
+
+.sdr-image-tooltip-header {
+font-weight: bold;
+color: #3f567a;
+margin-bottom: 1rem;
+padding-bottom: 0.75rem;
+border-bottom: 2px solid #e5e7eb;
+display: flex;
+align-items: center;
+gap: 0.75rem;
+font-size: 1.2rem;
+}
+
+.sdr-images-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));  /* Increased from 250px */
+gap: 1.5rem;
+margin-top: 1rem;
+}
+
+.sdr-image-container {
+position: relative;
+}
+
+.sdr-image-label {
+position: absolute;
+top: 12px;
+left: 12px;
+padding: 0.5rem 1rem;
+border-radius: 8px;
+font-weight: bold;
+font-size: 1rem;  /* Increased from 0.85rem */
+color: white;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+z-index: 1;
+}
+
+.sdr-image-label.ok-label {
+background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.sdr-image-label.nok-label {
+background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.sdr-no-images {
+text-align: center;
+padding: 3rem;
+color: #6b7280;
+font-style: italic;
+font-size: 1rem;
+}
+
+/* Arrow pointer for tooltip */
+.sdr-image-tooltip::after {
+content: ‘’;
+position: absolute;
+top: 100%;
+left: 50%;
+transform: translateX(-50%);
+border: 10px solid transparent;
+border-top-color: #3f567a;
+}
+
+/* TOP 3 EOL FINDINGS BY MONTH - COMPASS 9.2.2 */
+.eol-top3-section { margin: 1.5rem 0 2rem 0; padding: 0; }
+.eol-top3-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 1.2rem; padding: 1rem 1.5rem;
+background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+border-radius: 12px; flex-wrap: wrap; gap: 0.75rem;
+}
+.eol-top3-header-left { display: flex; align-items: center; gap: 1rem; }
+.eol-top3-compass-badge {
+display: inline-flex; align-items: center; gap: 0.5rem;
+padding: 0.4rem 1rem; background: rgba(255,255,255,0.15);
+border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
+color: #fff; font-size: 1.15rem; font-weight: 700;
+letter-spacing: 0.05em; text-transform: uppercase;
+}
+.eol-top3-compass-badge i { color: #fbbf24; }
+.eol-top3-title { color: #fff; font-size: 1.3rem; font-weight: 700; }
+.eol-top3-title span { color: #93c5fd; font-weight: 400; font-size: 1rem; margin-left: 0.5rem; }
+.eol-top3-month-nav { display: flex; align-items: center; gap: 0.5rem; }
+.eol-top3-month-btn {
+background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+color: #fff; padding: 0.35rem 0.75rem; border-radius: 6px;
+cursor: pointer; font-size: 1rem; transition: all 0.2s ease;
+}
+.eol-top3-month-btn:hover { background: rgba(255,255,255,0.3); }
+.eol-top3-month-label { color: #fff; font-weight: 700; font-size: 1.1rem; min-width: 160px; text-align: center; }
+.eol-top3-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.eol-top3-card {
+background: #fff; border-radius: 12px; border: 2px solid #e2e8f0;
+padding: 1.25rem 1.5rem; position: relative; overflow: hidden;
+transition: all 0.3s ease; display: flex; flex-direction: column; gap: 0.75rem;
+}
+.eol-top3-card:hover { border-color: #3b82f6; box-shadow: 0 8px 25px rgba(59,130,246,0.15); transform: translateY(-2px); }
+.eol-top3-card::before { content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.eol-top3-card:nth-child(1)::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.eol-top3-card:nth-child(2)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.eol-top3-card:nth-child(3)::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.eol-top3-rank {
+position: absolute; top: 12px; right: 12px; width: 32px; height: 32px;
+border-radius: 50%; display: flex; align-items: center; justify-content: center;
+font-weight: 800; font-size: 0.95rem; color: #fff;
+}
+.eol-top3-card:nth-child(1) .eol-top3-rank { background: #ef4444; }
+.eol-top3-card:nth-child(2) .eol-top3-rank { background: #f59e0b; }
+.eol-top3-card:nth-child(3) .eol-top3-rank { background: #3b82f6; }
+.eol-top3-issue-name { font-weight: 700; font-size: 1.2rem; color: #1e293b; padding-right: 2.5rem; line-height: 1.3; }
+.eol-top3-count-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.eol-top3-count {
+display: inline-flex; align-items: center; gap: 0.4rem;
+padding: 0.3rem 0.9rem; border-radius: 20px; font-weight: 700; font-size: 1.05rem;
+}
+.eol-top3-card:nth-child(1) .eol-top3-count { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+.eol-top3-card:nth-child(2) .eol-top3-count { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+.eol-top3-card:nth-child(3) .eol-top3-count { background: #eff6ff; color: #2563eb; border: 1px solid #93c5fd; }
+.eol-top3-pdca {
+display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+user-select: none; padding: 0.35rem 0.85rem; border-radius: 8px;
+background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.2s ease;
+}
+.eol-top3-pdca:hover { background: #f1f5f9; border-color: #cbd5e1; }
+.eol-top3-pdca input[type=“checkbox”] { width: 20px; height: 20px; cursor: pointer; accent-color: #16a34a; }
+.eol-top3-pdca-label { font-size: 0.9rem; font-weight: 600; color: #475569; }
+.eol-top3-pdca.checked { background: #f0fdf4; border-color: #86efac; }
+.eol-top3-pdca.checked .eol-top3-pdca-label { color: #16a34a; }
+.eol-top3-empty { grid-column: 1 / -1; text-align: center; padding: 2rem; color: #94a3b8; font-style: italic; font-size: 1.1rem; }
+
+/* Reduce blank space above Top 3 section in EOL Findings */
+#eol-findings-details .details-content {
+padding-top: 0.5rem !important;
+}
+#eol-findings-details .details-header {
+margin-bottom: 0.25rem !important;
+}
+.eol-top3-section {
+margin-top: 0 !important;
+}
+
+.quality-alert-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.8);
+z-index: 3000;
+overflow-y: auto;
+padding: 2rem;
+}
+
+/* Quality Alert Preview Styles */
+.alert-preview {
+background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+border: 2px solid #fecaca;
+border-radius: 12px;
+padding: 1.5rem;
+margin: 0.5rem 0;
+text-align: left;
+transition: all 0.3s ease;
+cursor: pointer;
+position: relative;
+overflow: hidden;
+}
+
+.alert-preview:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+border-color: #f87171;
+}
+
+.alert-preview-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 1rem;
+border-bottom: 1px solid #fca5a5;
+padding-bottom: 0.75rem;
+}
+
+.alert-preview-number {
+font-size: 1.4rem;
+font-weight: bold;
+color: #dc2626;
+background: white;
+padding: 0.25rem 0.75rem;
+border-radius: 20px;
+border: 2px solid #dc2626;
+}
+
+.alert-preview-status {
+background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+color: white;
+padding: 0.25rem 0.75rem;
+border-radius: 12px;
+font-size: 0.8rem;
+font-weight: 600;
+text-transform: uppercase;
+}
+
+.alert-preview-defect {
+font-size: 1.1rem;
+color: #991b1b;
+margin-bottom: 1rem;
+font-weight: 600;
+line-height: 1.4;
+}
+
+.alert-preview-details {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.75rem;
+margin-bottom: 1rem;
+font-size: 0.9rem;
+color: #7c2d12;
+}
+
+.alert-preview-detail {
+display: flex;
+flex-direction: column;
+gap: 0.25rem;
+}
+
+.alert-preview-detail-label {
+font-weight: 600;
+color: #92400e;
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+
+.alert-preview-detail-value {
+color: #7c2d12;
+font-weight: 500;
+}
+
+.alert-preview-actions {
+text-align: center;
+margin-top: 1rem;
+padding-top: 1rem;
+border-top: 1px solid #fca5a5;
+}
+
+.view-quality-alert-btn {
+background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+color: white;
+border: none;
+border-radius: 8px;
+padding: 0.25rem 0.25rem;
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.view-quality-alert-btn:hover {
+background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+transform: translateY(-1px);
+box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+}
+
+.alert-preview-icon {
+position: absolute;
+top: 1rem;
+right: 1rem;
+width: 32px;
+height: 32px;
+background: rgba(220, 38, 38, 0.1);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #dc2626;
+font-size: 0.9rem;
+}
+
+.quality-alert-modal.active {
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.quality-alert-content {
+background: white;
+border-radius: 12px;
+max-width: 95vw;
+max-height: 90vh;
+overflow-y: auto;
+position: relative;
+box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.quality-alert-close {
+position: absolute;
+top: 1rem;
+right: 1rem;
+background: #f44336;
+color: white;
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+font-size: 1.2rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 11;
+}
+
+.quality-alert-close:hover {
+background: #d32f2f;
+}
+
+.quality-alert-body {
+padding: 2rem;
+}
+
+/* Embedded Quality Alert Document Styles */
+.qa-document {
+font-family: ‘Inter’, sans-serif;
+line-height: 1.4;
+}
+
+.qa-header-table {
+width: 100%;
+margin-bottom: 1rem;
+border-collapse: collapse;
+}
+
+.qa-header-table td {
+padding: 0.5rem;
+vertical-align: top;
+}
+
+.qa-alert-number {
+text-align: center;
+border-radius: 10px;
+font-weight: bold;
+font-size: 1.5rem;
+background-color: rgba(214, 19, 19, 0.884);
+color: white;
+padding: 0.5rem;
+}
+
+.qa-problem-section, .qa-instruction-section {
+text-align: center;
+border-radius: 10px;
+font-weight: bold;
+font-size: 1.2rem;
+color: white;
+padding: 0.5rem;
+margin: 1rem 0;
+}
+
+.qa-problem-section {
+background: rgba(214, 19, 19, 0.884);
+}
+
+.qa-instruction-section {
+background: rgba(0, 75, 173, 0.884);
+}
+
+.qa-images-container {
+display: flex;
+gap: 1rem;
+justify-content: center;
+margin: 1rem 0;
+flex-wrap: wrap;
+}
+
+.qa-image {
+max-width: 500px;
+height: auto;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qa-good-image {
+border: 4px solid rgba(28, 211, 77, 0.884);
+}
+
+.qa-bad-image {
+border: 4px solid red;
+}
+
+.qa-details-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 2rem;
+margin: 1rem 0;
+}
+
+.qa-info-section {
+background: #f8fafc;
+padding: 1rem;
+border-radius: 8px;
+border: 1px solid #e5e7eb;
+}
+
+.qa-instructions-table {
+width: 100%;
+border-collapse: collapse;
+margin: 1rem 0;
+}
+
+.qa-instructions-table th,
+.qa-instructions-table td {
+padding: 0.5rem;
+border: 1px solid #e5e7eb;
+text-align: left;
+font-size: 0.9rem;
+}
+
+.qa-instructions-table th {
+background: #f8fafc;
+font-weight: bold;
+}
+
+.qa-note {
+background: #fef3c7;
+border: 1px solid #f59e0b;
+border-radius: 8px;
+padding: 1rem;
+margin: 1rem 0;
+text-align: center;
+font-weight: bold;
+font-size: 0.9rem;
+}
+
+/* Click to view quality alert styling */
+.view-quality-alert-btn {
+background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+width: 30%;
+justify-content: center;
+margin-bottom: 20px;
+}
+
+.view-quality-alert-btn:hover {
+background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.alert-preview {
+background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+border: 2px solid #fecaca;
+border-radius: 8px;
+padding: 1rem;
+margin: 0.5rem 0;
+text-align: center;
+}
+
+.alert-preview-number {
+font-size: 1.4rem;
+font-weight: bold;
+color: #dc2626;
+margin-bottom: 0.5rem;
+}
+
+.alert-preview-defect {
+font-size: 1rem;
+color: #991b1b;
+margin-bottom: 0.45rem;
+font-weight: 600;
+}
+
+@media (max-width: 768px) {
+.quality-alert-modal {
+padding: 0.5rem;
+}
+
+```
+.qa-details-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.qa-images-container {
+    flex-direction: column;
+    align-items: center;
+}
+
+.qa-image {
+    max-width: 100%;
+}
+```
+
+}
+
+@keyframes pulseAlert {
+0%, 100% {
+background-color: rgba(231, 25, 14, 0.2); /* translucent red */
+color: #3f567a;
+}
+50% {
+background-color: rgba(255, 255, 255, 0.8);
+color: #3f567a;
+}
+}
+
+.flash-defect {
+animation: pulseAlert 11s ease-in-out infinite;
+font-weight: 900;
+border-radius: 8px;
+
+}
+
+.quality-alert-row td {
+padding: 12px;
+font-size: 2rem;
+}
+
+.alert-id {
+font-size: 2.5rem;
+text-transform: uppercase;
+
+}
+
+.alert-defect {
+font-size: 12rem;
+}
+
+.alert-date {
+font-size: 0.9rem;
+}
+
+.count-badge {
+font-family: system-ui, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, Roboto, Oxygen, Ubuntu, Cantarell, ‘Open Sans’, ‘Helvetica Neue’, sans-serif;
+font-size: 19px;
+margin-left: 10px;
+min-height: 5px;
+width: 39px;
+height: 24px;
+min-width: 10px; /* This ensures minimum width */
+padding: 2px 4px; /* This adds space around the number */
+color: #ffffff;
+font-weight: 500;
+border-radius: 19px;
+display: inline-flex; /* Use flexbox for centering */
+align-items: center;
+justify-content: center;
+box-sizing: border-box;
+}
+
+.supplier-logo-cell {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.supplier-logo-img {
+width: 24px;
+height: 24px;
+border-radius: 23px;
+object-fit: cover;
+border: 1px solid #e5e7eb;
+flex-shrink: 0;
+}
+
+.supplier-logo-placeholder {
+width: 24px;
+height: 24px;
+background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+border-radius: 3px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 10px;
+color: #9ca3af;
+font-weight: bold;
+border: 1px solid #d1d5db;
+flex-shrink: 0;
+}
+
+/* Presentation mode enhancements for supplier cells */
+.metric-card.expanded .supplier-logo-img {
+width: 42px;
+height: 38px;
+}
+
+.metric-card.expanded .supplier-logo-cell {
+gap: 0.75rem;
+}
+
+```
+    :root {
+        --primary-color: #3f567a;
+        --primary-dark: #2c3e50;
+        --primary-light: #495a7a;
+        --primary-lighter: #5c6f94;
+        --quality-color: #495a7a;  /* FIXED: Added missing quality-color variable */
+        --quality-dark: #2c3e50;   /* FIXED: Added missing quality-dark variable */
+        --quality-light: #5c6f94;  /* FIXED: Added missing quality-light variable */
+        --success-color: #4CAF50;
+        --success-dark: #45a049;
+        --warning-color: #ff9800;
+        --warning-dark: #f57c00;
+        --danger-color: #f44336;
+        --danger-dark: #d32f2f;
+        --glass-bg: rgba(255, 255, 255, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        --border-radius: 20px;
+        --border-radius-sm: 12px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        min-height: 100vh;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    /* Subtle texture overlay */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+
+
+    .badge-blue-key {
+background: #3b82f6;
+color: #ffffff;
+```
+
+}
+
+.badge-yellow-key {
+background: #fbbf24;
+color: #92400e;
+}
+
+```
+    .header {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        max-width: 300px;
+        margin: 0 auto 1;
+        border-radius: 111px;
+        box-shadow: var(--shadow-lg);
+        position: sticky;
+        top: 0.4rem;
+        z-index: 10;
+        border-bottom: 1px solid rgba(63, 86, 122, 0.1);
+        transition: var(--transition);
+        overflow: hidden;
+    }
+
+    .header.hidden {
+        max-height: 0;
+        padding: 0 2rem;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .header-content {
+        max-width: 300px;
+        margin: auto;
+    }
+
+    .header h1 {
+        color: var(--primary-color);
+        font-size: clamp(2.2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+    }
+
+    .nav-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .tab {
+        padding: 1rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+
+    .tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .tab:hover::before {
+        left: 100%;
+    }
+
+    .tab.active {
+        background: var(--primary-dark);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .tab:hover:not(.active) {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .tab:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .header-toggle-btn {
+        position: fixed;
+        top: 1rem;
+        right: 2rem;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-lg);
+        transition: var(--transition);
+    }
+
+    .header-toggle-btn:hover {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+        transform: scale(1.1);
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .department-section {
+        display: none;
+        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .department-section.active {
+        display: block;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .daily-summary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: right;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+    }
+
+    .daily-summary::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateX(-10px) translateY(-10px) rotate(0deg); }
+        50% { transform: translateX(10px) translateY(10px) rotate(180deg); }
+    }
+
+    .daily-date {
+        font-size: 2.0rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-align: right;
+        margin: 0 auto 1;
+    }
+
+    .daily-status {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        box-shadow: var(--shadow-lg);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(63, 86, 122, 0.1);
+        cursor: pointer; /* FIXED: Re-added cursor pointer */
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+    }
+
+    /* Enhanced hover and click effects */
+    .metric-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .metric-card:active {
+        transform: translateY(-8px) scale(1.01);
+        transition: all 0.1s ease;
+    }
+
+    .metric-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .metric-card.success::before {
+        background: linear-gradient(135deg, var(--success-color) 0%, var(--success-dark) 100%);
+    }
+
+    .metric-card.warning::before {
+        background: linear-gradient(135deg, var(--warning-color) 0%, var(--warning-dark) 100%);
+    }
+
+    .metric-card.danger::before {
+        background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-dark) 100%);
+    }
+```
+
+.metric-card.expanded {
+position: fixed !important;
+top: 0 !important;
+left: 0 !important;
+right: 0 !important;
+bottom: 0 !important;
+width: 100vw !important;
+height: 100vh !important;
+z-index: 2000 !important;
+background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+border-radius: 0 !important;
+padding: 0 !important; /* CHANGED: Remove padding to maximize space */
+transform: none !important;
+box-shadow: none !important;
+border: none !important;
+display: flex !important;
+flex-direction: column !important;
+overflow: hidden !important; /* CHANGED: Hide overflow on main container */
+}
+
+```
+    .metric-card.expanded::before {
+        display: none !important;
+    }
+
+    .metric-card.expanded::after {
+        display: none !important;
+    }
+
+    /* Presentation mode header */
+    .presentation-header {
+        display: none;
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 1.5rem 2rem;
+        border-bottom: 3px solid var(--quality-color);
+        box-shadow: var(--shadow-md);
+        z-index: 10;
+        margin: -2rem -2rem 2rem -2rem;
+    }
+
+    .metric-card.expanded .presentation-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .presentation-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .presentation-title h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--quality-color);
+        margin: 0;
+    }
+
+    .presentation-title .metric-icon-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .presentation-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .presenter-info {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1.5rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 50px;
+        border: 1.5px solid var(--quality-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .presenter-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .presenter-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .presenter-name {
+        font-weight: 700;
+        color: var(--quality-color);
+        font-size: 1.4rem;
+    }
+
+    .presenter-role {
+        font-size: 0.85rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .safety-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        max-width: 320px;
+        margin: 0 auto 1;
+        color: #3f567a;
+        border-radius: 111px;
+        box-shadow: var(--shadow-lg);
+        position: sticky;
+        top: 0.4rem;
+        z-index: 10;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+        border-bottom: 1px solid rgba(63, 86, 122, 0.1);
+        transition: var(--transition);
+        overflow: hidden;
+    }
+
+    .nav-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .nav-btn {
+        width: 61px;
+        height: 61px;
+        border: none;
+        border-radius: 20%;
+        background: #e2e8f0;
+        color: #3f567a;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.4rem;
+
+    }
+
+    .nav-btn:hover {
+        background: linear-gradient(135deg, var(--glass-bg) 0%, var(--glass-bg) 50%);
+        transform: scale(1.1);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .close-btn {
+        background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
+
+    .close-btn:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+    }
+```
+
+.metric-card.expanded .details-content {
+flex: 1 1 auto !important;
+overflow-y: auto !important;
+overflow-x: hidden !important;
+padding: 2rem !important;
+max-height: none !important;
+height: 100% !important;
+}
+
+```
+    .metric-card.expanded .details-header {
+        margin-bottom: 2rem;
+    }
+
+    .metric-card.expanded .details-title {
+        font-size: 2rem;
+        color: var(--quality-color);
+    }
+
+    .metric-card.expanded .view-all-btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* Enhanced table for presentation */
+    .metric-card.expanded .details-table {
+        font-size: 1.1rem;
+        box-shadow: var(--shadow-xl);
+    }
+
+    .metric-card.expanded .details-table th {
+        padding: 1.5rem;
+        font-size: 1rem;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        color: white;
+    }
+
+    .metric-card.expanded .details-table td {
+        padding: 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    /* Presentation mode navigation indicator */
+    .presentation-indicator {
+        display: none;
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        z-index: 2001;
+        backdrop-filter: blur(10px);
+    }
+
+    .metric-card.expanded ~ .presentation-indicator,
+    .metric-card.expanded .presentation-indicator {
+        display: block;
+    }
+
+    .metric-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 1.8rem;
+        color: white;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        z-index: 1;
+        transition: var(--transition);
+    }
+
+    /* Enhanced expand indicator with pulse animation */
+    .metric-icon::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Font Awesome 5 Free';
+        font-size: 0.8rem;
+        font-weight: 900;
+        color: var(--quality-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: var(--transition);
+        border: 2px solid var(--quality-color);
+    }
+
+    .metric-card:not(.expanded) .metric-icon::after {
+        content: '\f107'; /* chevron-down */
+        animation: pulse 2s infinite;
+    }
+
+    .metric-card.expanded .metric-icon::after {
+        content: '\f106'; /* chevron-up */
+        background: var(--quality-color);
+        color: white;
+        transform: scale(1.1);
+        animation: none;
+    }
+
+    .metric-card:hover .metric-icon {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .metric-card.expanded .metric-icon {
+        transform: scale(1.15);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    @keyframes pulse {
+        0%, 100% { 
+            transform: scale(1); 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        50% { 
+            transform: scale(1.1); 
+            box-shadow: 0 6px 18px rgba(73, 90, 122, 0.4);
+        }
+    }
+
+    .metric-card.success .metric-icon {
+        background: linear-gradient(135deg, var(--success-color) 0%, var(--success-dark) 100%);
+    }
+
+    .metric-card.warning .metric-icon {
+        background: linear-gradient(135deg, var(--warning-color) 0%, var(--warning-dark) 100%);
+    }
+
+    .metric-card.danger .metric-icon {
+        background: linear-gradient(135deg, var(--danger-color) 0%, var(--danger-dark) 100%);
+    }
+
+    .metric-value {
+        font-size: 3.4rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: #1f2937;
+        line-height: 1;
+        position: relative;
+        z-index: 1;
+        transition: var(--transition);
+    }
+
+    .metric-card:hover .metric-value {
+        transform: scale(1.05);
+        color: var(--quality-dark);
+    }
+
+    .metric-label {
+        font-size: 1.2rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        position: relative;
+        z-index: 1;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
+    }
+
+    /* Enhanced expandable content area */
+    .metric-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        margin-top: 0;
+    }
+
+    .metric-card.expanded .metric-details {
+        max-height: 85vh;
+        overflow-y: auto;
+        opacity: 1;
+        margin-top: 2rem;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                   opacity 0.4s ease 0.2s,
+                   margin-top 0.4s ease;
+    }
+
+    .details-content {
+        padding: 2rem;
+        border-top: 3px solid rgba(73, 90, 122, 0.15);
+        text-align: left;
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.9) 100%);
+        border-radius: var(--border-radius-sm);
+        margin: 0 -1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .details-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .details-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--quality-color);
+        margin: 0;
+    }
+
+    .view-all-btn {
+        padding: 0.6rem 1.2rem;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-md);
+    }
+
+    .view-all-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(73, 90, 122, 0.4);
+        color: white;
+        background: linear-gradient(135deg, var(--quality-dark) 0%, var(--quality-color) 100%);
+    }
+
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        table-layout: fixed;
+    }
+
+    .details-table th {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.2rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--quality-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid rgba(73, 90, 122, 0.1);
+    }
+
+    .details-table td {
+        padding: 1.2rem;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.95rem;
+        color: #4b5563;
+        vertical-align: top;
+        transition: var(--transition);
+        word-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    .details-table tr:hover {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        transform: scale(1.001);
+    }
+
+    .details-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Enhanced table column widths for better comment visibility */
+    .details-table th:nth-child(1), .details-table td:nth-child(1) { width: 12%; } /* Date */
+    .details-table th:nth-child(2), .details-table td:nth-child(2) { width: 57%; } /* Comment - WIDER */
+    .details-table th:nth-child(3), .details-table td:nth-child(3) { width: 15%; } /* Why - WIDER */
+    .details-table th:nth-child(4), .details-table td:nth-child(4) { width: 8%; } /* Report ID */
+    .details-table th:nth-child(5), .details-table td:nth-child(5) { width: 8%; }  /* Status */
+
+    /* Enhanced text display */
+    .full-text {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        hyphens: auto !important;
+        line-height: 1.4 !important;
+    }
+
+    .text-tooltip {
+        position: relative;
+        cursor: help;
+    }
+
+    .text-tooltip:hover::after {
+        content: attr(data-full-text);
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        background: #1f2937;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        white-space: normal;
+        word-wrap: break-word;
+        max-width: 400px;
+        z-index: 1000;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Pagination controls */
+    .page-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        margin: 1rem 0;
+        border-top: 2px solid rgba(73, 90, 122, 0.1);
+        border-bottom: 2px solid rgba(73, 90, 122, 0.1);
+    }
+
+    .page-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--quality-color);
+    }
+
+    .total-items {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: #6b7280;
+    }
+
+    .page-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .page-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .page-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--quality-dark) 0%, var(--quality-color) 100%);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        background: #9ca3af;
+    }
+
+    .metric-card.expanded .page-controls {
+        border-color: rgba(73, 90, 122, 0.2);
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.5) 0%, rgba(241, 245, 249, 0.5) 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .loading-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid var(--quality-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #60d46a;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #60d46a;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Badge styles */
+    .severity-badge, .status-badge, .type-badge {
+        padding: 0.2rem 0.8rem;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .severity-high {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #dc2626;
+    }
+
+    .severity-medium {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #ac9221;
+    }
+
+    .severity-low {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+    }
+
+    .status-open {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #d97706;
+    }
+
+    .status-closed {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+    }
+
+    .status-active {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #d97706;
+    }
+
+    .status-available {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+    }
+
+    .type-badge {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #4338ca;
+    }
+
+    /* Section styles */
+    .daily-incidents {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        margin: 2rem 0;
+        transition: var(--transition);
+        border: 1px solid rgba(33, 150, 243, 0.1);
+        max-width: none;
+    }
+
+    .daily-incidents:hover {
+        box-shadow: var(--shadow-xl);
+    }
+
+    .table-container {
+        border-radius: var(--border-radius-sm);
+        margin-top: 1.5rem;
+        overflow-x: visible;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        table-layout: fixed;
+    }
+
+    .table th {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 0.65rem 0.5rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--quality-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid rgba(33, 150, 243, 0.1);
+    }
+
+    .table td {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.95rem;
+        color: #4b5563;
+        vertical-align: top;
+        word-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    .table tr:hover {
+        background: #f8fafc;
+        transform: scale(1.001);
+        transition: var(--transition);
+    }
+
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Enhanced table column widths */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 12%; } /* Date/Time */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 45%; } /* Comment/Description - WIDER */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* Why/Reason - WIDER */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* ID/Status */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 8%; }  /* Actions */
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+    }
+
+    .chart-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--quality-color);
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .btn {
+        padding: 0.875rem 1.75rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--quality-dark) 0%, var(--quality-color) 100%);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .refresh-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, var(--quality-color) 0%, var(--quality-light) 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        transition: var(--transition);
+        z-index: 1000;
+    }
+
+    .refresh-btn:hover {
+        background: linear-gradient(135deg, var(--quality-dark) 0%, var(--quality-color) 100%);
+        transform: scale(1.1);
+        box-shadow: var(--shadow-xl);
+    }
+
+    /* FIXED: Hide section navigation when in presentation mode */
+    .metric-card.expanded ~ .section-navigation,
+    body:has(.metric-card.expanded) .section-navigation {
+        display: none !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+        }
+        
+        .nav-tabs {
+            gap: 0.5rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .metrics-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .metric-card {
+            padding: 1.5rem;
+        }
+        
+        .container {
+            padding: 1rem;
+        }
+
+        .header-toggle-btn {
+            top: 0.5rem;
+            right: 1rem;
+            width: 44px;
+            height: 44px;
+            font-size: 1.1rem;
+        }
+        
+        .details-table th,
+        .details-table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .page-controls {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .page-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    {% include 'nav.html' %} 
+
+```
+<!-- Header Toggle Button -->
+<button class="header-toggle-btn" onclick="toggleHeader()" title="Toggle Header" id="headerToggleBtn">
+    <i class="fas fa-eye-slash"></i>
+</button>
+
+<div class="container">
+    <!-- Quality Summary Section -->
+    <div class="loading" id="quality-loading">
+        <div class="loading-spinner"></div>
+        <h3>Loading daily quality data...</h3>
+        <p>Please wait while we fetch the latest information</p>
+    </div>
+
+    <div id="quality-content" style="display: none;">
+         <div class="daily-summary" style="display: flex; justify-content: space-between; align-items: center;">
+```
+
+<h1 class="safety-card" style="font-size: 48px; margin: 0;"><i class="bi bi-check2-circle"></i></i> QUALITY</h1>
+  <div>
+    <div class="daily-date" id="current-date" style="font-size: 38px;"></div>
+    <div class="daily-status" id="daily-status">Today's Safety Status</div>
+  </div>
+</div>
+
+```
+        <!-- Enhanced Metrics Cards with Expandable Functionality -->
+        <div class="metrics-grid">
+            <div class="metric-card" id="quality-claims-card" onclick="toggleMetricCard('claims')">
+                <div class="metric-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="metric-value" id="quality-claims">0</div>
+                <div class="metric-label">Quality Claims (24h)</div>
+                
+                <!-- Expandable details -->
+                <div class="metric-details" id="claims-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <h1>BMW Quality Claims</h1>
+                        </div>
+```
+
+<div class="presentation-controls">
+    <!-- Presenter 1 -->
+    <div class="presenter-info">
+        <div class="presenter-avatar">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="presenter-details">
+            <div class="presenter-name">Juan Loaiza</div>
+            <div class="presenter-role">Quality Engineer</div>
+        </div>
+    </div>
+
+```
+<!-- Presenter 2 -->
+<div class="presenter-info">
+    <div class="presenter-avatar">
+        <i class="fas fa-microphone"></i>
+    </div>
+    <div class="presenter-details">
+        <div class="presenter-name">Sarisha Douglas</div>
+        <div class="presenter-role">Quality Engineer</div>
+    </div>
+```
+
+</div>
+                                <div class="nav-controls">
+
+```
+                                </button>
+                                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                    <i class="bi bi-fast-forward-btn-fill"></i>
+                                </button>
+                                    <div class="presenter-role">      </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+
+                            </a>
+                        </div>
+                        <div id="claims-loading" class="loading-state" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading claims...</p>
+                        </div>
+                        <div id="claims-table-container">
+<table class="details-table">
+    <thead>
+        <tr>
+            <th style="width: 9%;">Time</th>
+            <th style="width: 32%;">Event</th>
+            <th style="width: 10%;">Responsible</th>
+            <th style="width: 22%;">Action Taken</th>
+            <th style="width: 7%;">Severity</th>
+            <th style="width: 10%;">Owner</th>
+            <th style="width: 10%; text-align:center;">Photos</th>
+        </tr>
+    </thead>
+    <tbody id="claims-details-tbody">
+    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card warning" id="key-turns-card" data-card="key-turns" onclick="toggleMetricCard('key-turns')">
+                <div class="metric-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="metric-value" id="key-turns">0</div>
+                <div class="metric-label" id="keyTurnsMetricLabel">Key Turns (24h)</div>
+                
+                <!-- Expandable details -->
+                <div class="metric-details" id="key-turns-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <h1>Key Turns</h1>
+                        </div>
+```
+
+<div class="presentation-controls">
+    <!-- Presenter 1 -->
+    <div class="presenter-info">
+        <div class="presenter-avatar">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="presenter-details">
+            <div class="presenter-name">Juan Loaiza</div>
+            <div class="presenter-role">Quality Engineer</div>
+        </div>
+    </div>
+
+```
+<!-- Presenter 2 -->
+<div class="presenter-info">
+    <div class="presenter-avatar">
+        <i class="fas fa-microphone"></i>
+    </div>
+    <div class="presenter-details">
+        <div class="presenter-name">Sarisha Douglas</div>
+        <div class="presenter-role">Quality Engineer</div>
+    </div>
+```
+
+</div>
+                                <div class="nav-controls">
+
+```
+                                </button>
+                                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                    <i class="bi bi-fast-forward-btn-fill"></i>
+                                </button>
+                                    <div class="presenter-role">      </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+
+                        </div>
+                        <div id="key-turns-loading" class="loading-state" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading key turns...</p>
+                        </div>
+                        <div id="key-turns-table-container">
+                        <table class="details-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;">Time</th>
+                                    <th style="width: 13%;">Type</th>  <!-- Made smaller -->
+                                    <th style="width: 10%;">Order Number</th>
+                                    <th style="width: 62%;">Description</th>  <!-- Made bigger -->
+                                </tr>
+                                </thead>
+                                <tbody id="key-turns-details-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card success" id="eol-issues-card" onclick="toggleMetricCard('eol-issues')">
+                <div class="metric-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="metric-value" id="eol-issues">0</div>
+                <div class="metric-label">Line Quality Issues (24h)</div>
+                
+                <!-- Expandable details for EOL Issues -->
+                <div class="metric-details" id="eol-issues-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h1>Line Quality Issues</h1>
+                        </div>
+```
+
+<div class="presentation-controls">
+    <!-- Presenter 1 -->
+    <div class="presenter-info">
+        <div class="presenter-avatar">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="presenter-details">
+            <div class="presenter-name">Juan Loaiza</div>
+            <div class="presenter-role">Quality Engineer</div>
+        </div>
+    </div>
+
+```
+<!-- Presenter 2 -->
+<div class="presenter-info">
+    <div class="presenter-avatar">
+        <i class="fas fa-microphone"></i>
+    </div>
+    <div class="presenter-details">
+        <div class="presenter-name">Sarisha Douglas</div>
+        <div class="presenter-role">Quality Engineer</div>
+    </div>
+```
+
+</div>
+                                <div class="nav-controls">
+
+```
+                                </button>
+                                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                    <i class="bi bi-fast-forward-btn-fill"></i>
+                                </button>
+                                    <div class="presenter-role">      </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+
+                        </div>
+                        <div id="eol-issues-loading" class="loading-state" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading EOL issues...</p>
+                        </div>
+                        <div id="eol-issues-table-container">
+                            <table class="details-table">
+                                <thead>
+                                    <tr>
+                                <th style="width: 12%;">Time</th>
+                                <th style="width: 10%;">Line</th>
+                                <th style="width: 48%;">Issue</th>
+                                <th style="width: 15%;">Identified By</th> <!-- Made bigger -->
+                                <th style="width: 25%;">Action Taken</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eol-issues-details-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+
+
+            <div class="metric-card warning" id="scrap-cost-card" onclick="toggleMetricCard('scrap')">
+                <div class="metric-icon">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <div class="metric-value" id="scrap-cost">0</div>
+                <div class="metric-label">Scrap Reports (72h)</div>
+                
+                <!-- Expandable details for scrap -->
+                <div class="metric-details" id="scrap-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                            <h1>Scrap Review</h1>
+                        </div>
+```
+
+<div class="presentation-controls">
+    <!-- Presenter 1 -->
+    <div class="presenter-info">
+        <div class="presenter-avatar">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="presenter-details">
+            <div class="presenter-name">Juan Loaiza</div>
+            <div class="presenter-role">Quality Engineer</div>
+        </div>
+    </div>
+
+```
+<!-- Presenter 2 -->
+<div class="presenter-info">
+    <div class="presenter-avatar">
+        <i class="fas fa-microphone"></i>
+    </div>
+    <div class="presenter-details">
+        <div class="presenter-name">Sarisha Douglas</div>
+        <div class="presenter-role">Quality Engineer</div>
+    </div>
+```
+
+</div>
+                                <div class="nav-controls">
+
+```
+                                </button>
+                                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                    <i class="bi bi-fast-forward-btn-fill"></i>
+                                </button>
+                                    <div class="presenter-role">      </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+                        </div>
+                        <div id="scrap-loading" class="loading-state" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading scrap reports...</p>
+                        </div>
+                        <div id="scrap-table-container">
+                            <table class="details-table">
+                                <thead>
+                                    <tr>
+                                    <th style="width: 15%;">Date</th>
+                                        <th style="width: 65%;">Comment</th>
+                                        <th style="width: 20%;">Part Involved</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scrap-details-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- EOL Findings Card -->
+            <div class="metric-card" id="eol-findings-card" onclick="toggleMetricCard('eol-findings')">
+                <div class="metric-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="metric-value" id="eol-findings">0</div>
+                <div class="metric-label">EOL Findings (24h)</div>
+                
+                <!-- Expandable details -->
+                <div class="metric-details" id="eol-findings-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h1>EOL Findings</h1>
+                        </div>
+```
+
+<div class="presentation-controls">
+    <!-- Presenter 1 -->
+    <div class="presenter-info">
+        <div class="presenter-avatar">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="presenter-details">
+            <div class="presenter-name">Derek Watson</div>
+            <div class="presenter-role">Production Unit Leader</div>
+        </div>
+    </div>
+
+```
+<!-- Presenter 2 -->
+<div class="presenter-info">
+    <div class="presenter-avatar">
+        <i class="fas fa-microphone"></i>
+    </div>
+    <div class="presenter-details">
+        <div class="presenter-name">Kenneth Smith III</div>
+        <div class="presenter-role">Production Unit Leader</div>
+    </div>
+```
+
+</div>
+                                <div class="nav-controls">
+                                    </button>
+                                    <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                        <i class="bi bi-fast-forward-btn-fill"></i>
+                                    </button>
+                                        <div class="presenter-role">      </div>
+
+```
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+                        </div>
+                        
+                        <!-- TOP 3 EOL FINDINGS BY MONTH -->
+                        <div class="eol-top3-section" id="eol-top3-section">
+                            <div class="eol-top3-header">
+                                <div class="eol-top3-header-left">
+
+                                    <div class="eol-top3-title">Top 3 EOL Findings <span>by Month</span></div>
+                                </div>
+                                <div class="eol-top3-month-nav">
+                                    <button class="eol-top3-month-btn" onclick="event.stopPropagation(); changeTop3Month(-1)"><i class="fas fa-chevron-left"></i></button>
+                                    <div class="eol-top3-month-label" id="eol-top3-month-label">March 2026</div>
+                                    <button class="eol-top3-month-btn" onclick="event.stopPropagation(); changeTop3Month(1)"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="eol-top3-cards" id="eol-top3-cards">
+                                <div class="eol-top3-empty">Loading top findings...</div>
+                            </div>
+                        </div>
+                        <!-- END TOP 3 -->
+```
+
+<div id="eol-findings-loading" class="loading-state" style="display: none;">
+                                <div class="loading-spinner"></div>
+                                <p>Loading EOL findings...</p>
+                            </div>
+                            <div id="eol-findings-table-container">
+                                <table class="details-table">
+                                    <thead>
+                                        <tr>
+                                        <th style="width: 3%; text-align: center;"></th>      <!-- Shift  -->
+                                        <th style="width: 9%;">Time</th>
+            <th style="width: 30%;">Description</th>
+            <th style="width: 10%;">E-CART</th>
+            <th style="width: 9%;">Location</th>
+            <th style="width: 5%;">↗️</th>
+            <th style="width: 8%;">Side</th>
+            <th style="width: 20%;">Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="eol-findings-details-tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+```
+            <!-- Quality Alerts Card -->
+            <div class="metric-card warning" id="quality-alerts-card" onclick="toggleMetricCard('quality-alerts')">
+                <div class="metric-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="metric-value" id="quality-alerts-active">0</div>
+                <div class="metric-label">Quality Alerts (72H)</div>
+                
+                <!-- Expandable details -->
+                <div class="metric-details" id="quality-alerts-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h1>Quality Alerts</h1>
+                        </div>
+                        <div class="presentation-controls">
+                            <div class="presenter-info">
+                                <div class="presenter-avatar">
+                                    <i class="fas fa-microphone"></i>
+                                </div>
+                                <div class="presenter-details">
+                                    <div class="presenter-name">Quality Team</div>
+                                    <div class="presenter-role"></div>
+                                </div>
+                            </div>
+                            <div class="nav-controls">
+
+                                </button>
+                                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                    <i class="bi bi-fast-forward-btn-fill"></i>
+                                </button>
+                                    <div class="presenter-role">      </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+
+                        </div>
+                        <div id="quality-alerts-loading" class="loading-state" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading quality alerts...</p>
+                        </div>
+                        <div id="quality-alerts-table-container">
+                            <table class="details-table">
+<thead>
+    <tr>
+        <th style="width: 11%;">Alert Number</th>
+        <th style="width: 45%;">Quality Alert Document</th>
+        <th style="width: 22%; text-align: center;">Quality Authorization</th>
+        <th style="width: 12%; text-align: center;">Completion</th>
+    </tr>
+</thead>
+<tbody id="quality-alerts-details-tbody">
+</tbody>
+```
+
+</table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+```
+            <div class="metric-card" id="sdr-card" onclick="toggleMetricCard('sdr')">
+<div class="metric-icon">
+    <i class="fas fa-truck-loading"></i>
+</div>
+<div class="metric-value" id="sdr-count">0</div>
+<div class="metric-label">Supplier Defect Reports </div>
+
+<!-- Expandable details -->
+<div class="metric-details" id="sdr-details">
+    <!-- Presentation Mode Header -->
+    <div class="presentation-header">
+        <div class="presentation-title">
+            <div class="metric-icon-large">
+                <i class="fas fa-truck-loading"></i>
+            </div>
+            <h1>Supplier Defect Reports</h1>
+        </div>
+    <div class="presentation-controls">
+        <!-- Presenter Info -->
+        <div class="presenter-info">
+            <div class="presenter-avatar">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="presenter-details">
+                <div class="presenter-name">Gareth McLaughlin</div>
+                <div class="presenter-role">Supplier Quality Engineer</div>
+            </div>
+        </div>
+        <div class="presenter-info">
+            <div class="presenter-avatar">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="presenter-details">
+                <div class="presenter-name">Jesus Palacios</div>
+                <div class="presenter-role">Supplier Quality Engineer</div>
+            </div>
+        </div>
+            <div class="nav-controls">
+                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                    <i class="bi bi-fast-forward-btn-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="details-content">
+        <div class="details-header">
+        </div>
+        <div id="sdr-loading" class="loading-state" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading SDRs...</p>
+        </div>
+        <div id="sdr-table-container">
+            <table class="details-table">
+                <thead>
+                    <tr>
+                        <th style="width: 14%;">Date Closed</th>
+                        <th style="width: 20%;">Supplier</th>
+                        <th style="width: 19%;">Material</th>
+                        <th style="width: 40%;">Detail</th>
+                        <th style="width: 8%; text-align: center;">Qty</th>
+                        <th style="width: 7%;">Line</th>
+                    </tr>
+                </thead>
+                <tbody id="sdr-details-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+```
+
+</div>
+
+```
+            <div class="metric-card danger" id="active-containments-card" onclick="toggleMetricCard('containment')">
+                <div class="metric-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="metric-value" id="active-containments">0</div>
+                <div class="metric-label">Active Containments</div>
+                
+                <!-- Expandable details -->
+                <!-- Updated containment details table in quality.html -->
+```
+
+<div class="metric-details" id="containment-details">
+    <!-- Presentation Mode Header -->
+    <div class="presentation-header">
+        <div class="presentation-title">
+            <div class="metric-icon-large">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h1>Supplier Containment</h1>
+        </div>
+        <div class="presentation-controls">
+            <!-- Presenter Info -->
+            <div class="presenter-info">
+                <div class="presenter-avatar">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="presenter-details">
+                    <div class="presenter-name">Gareth McLaughlin</div>
+                    <div class="presenter-role">Supplier Quality Engineer</div>
+                </div>
+            </div>
+            <div class="presenter-info">
+                <div class="presenter-avatar">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="presenter-details">
+                    <div class="presenter-name">Jesus Palacios</div>
+                    <div class="presenter-role">Supplier Quality Engineer</div>
+                </div>
+            </div>
+            <div class="nav-controls">
+                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                    <i class="bi bi-fast-forward-btn-fill"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+```
+<div class="details-content">
+    <div class="details-header">
+    </div>
+    <div id="containment-loading" class="loading-state" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Loading containments...</p>
+    </div>
+    <div id="containment-table-container">
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th style="width: 24%;">Supplier</th>
+                    <th style="width: 25%;">Non-Conformance</th>
+                    <th style="width: 20%;">Action Taken</th>
+                    <th style="width: 9%;text-align: center;">Inspected</th>
+                    <th style="width: 8%;text-align: center;">Defect Parts</th>
+                    <th style="width: 8%;text-align: center;">Defect Rate</th>
+                    <th style="width: 11%;">Owner</th>
+                </tr>
+            </thead>
+            <tbody id="containment-details-tbody">
+            </tbody>
+        </table>
+    </div>
+</div>
+```
+
+</div>
+                </div>
+
+```
+            <div class="metric-card" id="mrb-parts-card" onclick="toggleMetricCard('mrb')">
+                <div class="metric-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="metric-value" id="mrb-parts">0</div>
+                <div class="metric-label">MRB Parts</div>
+                
+                <!-- Expandable details for MRB Cage -->
+                <div class="metric-details" id="mrb-details">
+                    <!-- Presentation Mode Header -->
+                    <div class="presentation-header">
+                        <div class="presentation-title">
+                            <div class="metric-icon-large">
+                                <i class="fas fa-warehouse"></i>
+                            </div>
+                            <h1>MRB Cage Status</h1>
+                        </div>
+                       <div class="presentation-controls">
+        <!-- Presenter Info -->
+        <div class="presenter-info">
+            <div class="presenter-avatar">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="presenter-details">
+                <div class="presenter-name">Gareth McLaughlin</div>
+                <div class="presenter-role">Supplier Quality Engineer</div>
+            </div>
+        </div>
+        <div class="presenter-info">
+            <div class="presenter-avatar">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="presenter-details">
+                <div class="presenter-name">Jesus Palacios</div>
+                <div class="presenter-role">Supplier Quality Engineer</div>
+            </div>
+        </div>
+         <div class="presenter-info">
+            <div class="presenter-avatar">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="presenter-details">
+                <div class="presenter-name">Chris Fetzer</div>
+                <div class="presenter-role">Quality Technician</div>
+            </div>
+        </div>
+                            <div class="nav-controls">
+
+                                </button>
+                                <button class="nav-btn" onclick="navigatePresentation('next')" id="nextBtn">
+                                    <i class="bi bi-fast-forward-btn-fill"></i>
+                                </button>
+                                    <div class="presenter-role">      </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-content">
+                        <div class="details-header">
+
+                        </div>
+                        <div id="mrb-loading" class="loading-state" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Loading MRB items...</p>
+                        </div>
+                        <div id="mrb-table-container">
+                            <table class="details-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">Part</th>
+                                <th style="width: 22%;">Description</th>
+                                <th style="width: 9%; text-align: left;">Quantity</th>
+                                <th style="width: 35%;">Defect Reason</th>
+                                <th style="width: 10%;">Age (Days)</th>
+                                <th style="width: 20%;">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mrb-details-tbody">
+                        </tbody>
+                    </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add this card after the weld downtime card -->
+
+
+
+        <!-- EOL Findings Section -->
+        <div class="daily-incidents" id="eol-findings-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-search"></i> EOL Findings
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-sun"></i> Shift</th>
+                            <th><i class="fas fa-clock"></i> Time</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-barcode"></i> ECART Number</th>
+                            <th><i class="fas fa-mouse-pointer"></i> E_Button</th>
+                            <th><i class="fas fa-arrows-alt-h"></i> Side</th>
+                            <th><i class="fas fa-hashtag"></i> Order Number</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eol-findings-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quality Alerts Section -->
+        <div class="daily-incidents" id="quality-alerts-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-exclamation-triangle"></i> Active Quality Alerts
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-id-badge"></i> Alert Number</th>
+                            <th><i class="fas fa-bug"></i> Defect</th>
+                            <th><i class="fas fa-calendar"></i> Final Date</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quality-alerts-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Overview Section (empty) -->
+        <div class="daily-incidents" id="overview-section" style="display: none;">
+        </div>
+
+        <!-- Section-specific content areas -->
+        <div class="daily-incidents" id="claims-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-exclamation-circle"></i> BMW/VW Quality Claims (Last 24 Hours)
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-clock"></i> Reported Date</th>
+                            <th><i class="fas fa-building"></i> Customer</th>
+                            <th><i class="fas fa-barcode"></i> Part Number</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-flag"></i> Severity</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claims-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="daily-incidents" id="key-turns-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-key"></i> Blue/Yellow Key Turns <span id="keyTurnsTimeRange">(Last 24 Hours)</span>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-clock"></i> Time</th>
+                            <th><i class="fas fa-key"></i> Key Type</th>
+                            <th><i class="fas fa-map-marker-alt"></i> Station</th>
+                            <th><i class="fas fa-barcode"></i> Part Number</th>
+                            <th><i class="fas fa-user"></i> Operator</th>
+                            <th><i class="fas fa-question-circle"></i> Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="key-turns-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="daily-incidents" id="alerts-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-bell"></i> Quality Alerts (Last 24 Hours)
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-clock"></i> Created Date</th>
+                            <th><i class="fas fa-exclamation-triangle"></i> Alert Type</th>
+                            <th><i class="fas fa-map-marker-alt"></i> Station</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-flag"></i> Severity</th>
+                            <th><i class="fas fa-user"></i> Assigned To</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        
+
+        <div class="daily-incidents" id="scrap-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-trash-alt"></i> Scrap Review (Last 24 Hours)
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-clock"></i> Scrap Date</th>
+                            <th><i class="fas fa-file-alt"></i> Comment</th>
+                            <th><i class="fas fa-question-circle"></i> Why</th>
+                            <th><i class="fas fa-hashtag"></i> Quality Main ID</th>
+                            <th><i class="fas fa-clipboard-check"></i> Report</th>
+                            <th><i class="fas fa-info-circle"></i> Review Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scrap-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="daily-incidents" id="containment-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-shield-alt"></i> Active Supplier Containment Actions
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar"></i> Created Date</th>
+                            <th><i class="fas fa-building"></i> Supplier</th>
+                            <th><i class="fas fa-barcode"></i> Part Number</th>
+                            <th><i class="fas fa-file-alt"></i> Issue Description</th>
+                            <th><i class="fas fa-exclamation-triangle"></i> Risk Level</th>
+                            <th><i class="fas fa-user"></i> Assigned To</th>
+                        </tr>
+                    </thead>
+                    <tbody id="containment-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="daily-incidents" id="mrb-section" style="display: none;">
+            <div class="chart-title">
+                <i class="fas fa-warehouse"></i> MRB Cage Status
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar"></i> Review Date</th>
+                            <th><i class="fas fa-barcode"></i> Part Number</th>
+                            <th><i class="fas fa-hashtag"></i> Quantity</th>
+                            <th><i class="fas fa-question-circle"></i> Quarantine Reason</th>
+                            <th><i class="fas fa-clock"></i> Age (Days)</th>
+                            <th><i class="fas fa-clipboard-check"></i> Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mrb-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Presentation Mode Indicator -->
+<div class="presentation-indicator" id="presentationIndicator">
+    Use ← → arrow keys to navigate • Press ESC to exit
+</div>
+
+<button class="refresh-btn" onclick="refreshData()" title="Refresh Data">
+    <i class="fas fa-sync-alt"></i>
+</button>
+
+<script>
+    let charts = {};
+    let expandedMetricCards = new Set();
+    let currentPresentationIndex = -1;
+    let presentationSections = ['claims', 'key-turns', 'eol-issues', 'scrap', 'eol-findings', 'quality-alerts', 'sdr', 'containment', 'mrb'];
+    let inPresentationMode = false; // FIXED: Track presentation mode state
+    // Global variables for pagination
+    let currentPresentationData = [];
+    let currentPageIndex = 0;
+    const itemsPerPage = 15;
+
+    // Enhanced toggleMetricCard function with pagination support
+    function toggleMetricCard(cardType) {
+        const cardMapping = {
+            'claims': 'quality-claims-card',
+            'key-turns': 'key-turns-card',
+            'eol-issues': 'eol-issues-card',
+            'eol-findings': 'eol-findings-card',
+            'scrap': 'scrap-cost-card',
+            'quality-alerts': 'quality-alerts-card',
+            'sdr': 'sdr-card',
+            'containment': 'active-containments-card',  
+            'mrb': 'mrb-parts-card',
+        };
+        
+        const card = document.getElementById(cardMapping[cardType]);
+        if (!card) {
+            console.error(`Card not found for type: ${cardType}`);
+            return;
+        }
+        
+        const isExpanded = expandedMetricCards.has(cardType);
+        
+        if (isExpanded) {
+            closePresentationMode();
+        } else {
+            expandedMetricCards.forEach(otherCardType => {
+                const otherCard = document.getElementById(cardMapping[otherCardType]);
+                if (otherCard) {
+                    otherCard.classList.remove('expanded');
+                }
+            });
+            expandedMetricCards.clear();
+            
+            enterPresentationMode(cardType);
+        }
+    }
+
+    // Enhanced enterPresentationMode function
+    function enterPresentationMode(cardType) {
+        // Reset pagination state
+        currentPresentationData = [];
+        currentPageIndex = 0;
+        inPresentationMode = true; // FIXED: Set presentation mode flag
+        
+        const cardMapping = {
+            'claims': 'quality-claims-card',
+            'key-turns': 'key-turns-card',
+            'eol-issues': 'eol-issues-card',
+            'eol-findings': 'eol-findings-card',
+            'scrap': 'scrap-cost-card',
+            'quality-alerts': 'quality-alerts-card',
+            'containment': 'active-containments-card',
+            'mrb': 'mrb-parts-card',
+            'sdr': 'sdr-card'  // VERIFY THIS IS HERE
+
+        };
+        
+        const card = document.getElementById(cardMapping[cardType]);
+        if (!card) {
+            console.error(`Card not found for presentation mode: ${cardType}`);
+            return;
+        }
+        
+        // Hide main dashboard elements and section navigation
+        const dashboardHeader = document.getElementById('dashboardHeader');
+        if (dashboardHeader) dashboardHeader.style.display = 'none';
+        
+        document.querySelector('.daily-summary').style.display = 'none';
+        document.querySelector('.metrics-grid').style.position = 'relative';
+        document.querySelector('.metrics-grid').style.zIndex = '2000';
+        
+        // FIXED: Hide section navigation when in presentation mode
+        const sectionNavigation = document.querySelector('.section-navigation');
+        if (sectionNavigation) {
+            sectionNavigation.style.display = 'none';
+        }
+        
+        // Expand the card
+        card.classList.add('expanded');
+        expandedMetricCards.add(cardType);
+        
+        // Set current presentation index
+        currentPresentationIndex = presentationSections.indexOf(cardType);
+        
+        // Load data for this card type
+        loadMetricCardData(cardType);
+        
+        // Update navigation buttons
+        updateNavigationButtons();
+        
+        // Prevent body scrolling
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Enhanced closePresentationMode function
+    function closePresentationMode() {
+        expandedMetricCards.forEach(cardType => {
+            const cardMapping = {
+                'claims': 'quality-claims-card',
+                'key-turns': 'key-turns-card',
+                'eol-issues': 'eol-issues-card',
+                'scrap': 'scrap-cost-card',
+                'eol-findings': 'eol-findings-card',
+                'quality-alerts': 'quality-alerts-card',
+                'sdr': 'sdr-card',  // ADD THIS LINE
+                'containment': 'active-containments-card',
+                'mrb': 'mrb-parts-card',
+            };
+            const card = document.getElementById(cardMapping[cardType]);
+            if (card) {
+                card.classList.remove('expanded');
+            }
+        });
+        expandedMetricCards.clear();
+        inPresentationMode = false; // FIXED: Clear presentation mode flag
+        
+        // Show main dashboard elements and section navigation
+        const dashboardHeader = document.getElementById('dashboardHeader');
+        if (dashboardHeader) dashboardHeader.style.display = 'block';
+        
+        document.querySelector('.daily-summary').style.display = 'block';
+        document.querySelector('.metrics-grid').style.position = 'static';
+        document.querySelector('.metrics-grid').style.zIndex = 'auto';
+        
+        // FIXED: Show section navigation when exiting presentation mode
+        const sectionNavigation = document.querySelector('.section-navigation');
+        if (sectionNavigation) {
+            sectionNavigation.style.display = 'flex';
+        }
+        
+        // Reset presentation state
+        currentPresentationIndex = -1;
+        
+        // Restore body scrolling
+        document.body.style.overflow = 'auto';
+    }
+
+    // Navigate presentation sections
+```
+
+// Navigate presentation sections
+// Navigate presentation sections
+function navigatePresentation(direction) {
+if (direction === ‘next’) {
+if (currentPresentationIndex < presentationSections.length - 1) {
+currentPresentationIndex++;
+} else {
+// At the last section within Quality, navigate to the next page section (Production)
+closePresentationMode();
+// Use the section navigation to go to the next page
+if (typeof navigateSection === ‘function’) {
+navigateSection(‘next’);
+}
+return;
+}
+} else if (direction === ‘prev’) {
+if (currentPresentationIndex > 0) {
+currentPresentationIndex–;
+} else {
+// At the first section, can’t go back further
+return;
+}
+} else {
+return;
+}
+
+```
+const newSection = presentationSections[currentPresentationIndex];
+
+expandedMetricCards.forEach(cardType => {
+    const cardMapping = {
+        'claims': 'quality-claims-card',
+        'key-turns': 'key-turns-card',
+        'eol-issues': 'eol-issues-card',
+        'eol-findings': 'eol-findings-card',
+        'scrap': 'scrap-cost-card',
+        'quality-alerts': 'quality-alerts-card',
+        'sdr': 'sdr-card',
+        'containment': 'active-containments-card',
+        'mrb': 'mrb-parts-card'
+    };
+    const card = document.getElementById(cardMapping[cardType]);
+    if (card) {
+        card.classList.remove('expanded');
+    }
+});
+expandedMetricCards.clear();
+
+setTimeout(() => {
+    enterPresentationMode(newSection);
+}, 100);
+```
+
+}
+
+```
+    // Update navigation button states
+    function updateNavigationButtons() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        if (prevBtn) {
+            prevBtn.disabled = currentPresentationIndex <= 0;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentPresentationIndex >= presentationSections.length - 1;
+        }
+    }
+```
+
+async function loadMetricCardData(cardType) {
+const loadingElement = document.getElementById(`${cardType}-loading`);
+const tableContainer = document.getElementById(`${cardType}-table-container`);
+const tbody = document.getElementById(`${cardType}-details-tbody`);
+
+```
+if (loadingElement) {
+    loadingElement.style.display = 'block';
+}
+if (tableContainer) {
+    tableContainer.style.display = 'none';
+}
+
+try {
+    let endpoint = '';
+    let data = []; // Initialize data array
+    
+    switch(cardType) {
+        case 'claims':
+            endpoint = '/api/quality/claims/recent';
+            break;
+        case 'key-turns':
+            endpoint = '/api/quality/key-turns/recent';
+            break;
+        case 'eol-issues':
+            endpoint = '/api/quality/alerts/recent';
+            break;
+        case 'scrap':
+            endpoint = '/api/quality/scrap-review/recent';
+            break;
+        case 'eol-findings':
+            endpoint = '/api/quality/eol-findings/recent';
+            break;
+        case 'quality-alerts':
+            // Fetch both active alerts and expiring-soon alerts
+            const [activeResponse, expiringResponse] = await Promise.all([
+                fetch('/api/quality/quality-alerts/recent'),
+                fetch('/api/quality/quality-alerts/expiring')
+            ]);
+            
+            const activeAlerts = await activeResponse.json();
+            const expiringAlerts = await expiringResponse.json();
+            
+            // Mark expiring alerts so the renderer can style them differently
+            expiringAlerts.forEach(alert => { alert.isExpiring = true; });
+            
+            // Filter out duplicates (an alert could be in both lists)
+            const activeIds = new Set(activeAlerts.map(a => a.idQA));
+            const uniqueExpiring = expiringAlerts.filter(a => !activeIds.has(a.idQA));
+            
+            // Merge: active alerts first, then expiring alerts
+            const combinedAlerts = [...activeAlerts, ...uniqueExpiring];
+            
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            if (tableContainer) {
+                tableContainer.style.display = 'block';
+            }
+            
+            if (tbody) {
+                tbody.innerHTML = '';
+                populateMetricCardTable(cardType, combinedAlerts, tbody);
+            }
+            return; // Exit early
+        case 'sdr':
+            endpoint = '/api/quality/sdr/events';
+            break;
+        case 'containment':
+            endpoint = '/api/quality/supplier-containment';
+            break;
+        case 'mrb':
+            endpoint = '/api/quality/mrb-cage';
+            
+            // Fetch both MRB data and general note
+            const [mrbResponse, noteResponse] = await Promise.all([
+                fetch(endpoint),
+                fetch('/api/quality/mrb-general-note')
+            ]);
+            
+            data = await mrbResponse.json();
+            const noteData = await noteResponse.json();
+            
+            // Prepend general note if it exists
+            if (noteData.note && noteData.note.trim()) {
+                data.unshift({
+                    isGeneralNote: true,
+                    note: noteData.note
+                });
+            }
+            
+            // Skip the regular fetch below since we already have the data
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            if (tableContainer) {
+                tableContainer.style.display = 'block';
+            }
+            
+            if (tbody) {
+                tbody.innerHTML = '';
+                populateMetricCardTable(cardType, data, tbody);
+            }
+            return; // Exit early for MRB
+    }
+    
+    // For all other card types, fetch normally
+    const response = await fetch(endpoint);
+    data = await response.json();
+    
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+    if (tableContainer) {
+        tableContainer.style.display = 'block';
+    }
+    
+    if (tbody) {
+        tbody.innerHTML = '';
+        populateMetricCardTable(cardType, data, tbody);
+    }
+    
+} catch (error) {
+    console.error(`Error loading ${cardType} data:`, error);
+    if (loadingElement) {
+        loadingElement.innerHTML = `
+            <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 2rem;"></i>
+            <p>Error loading data</p>
+        `;
+    }
+}
+```
+
+}
+
+```
+    // Enhanced populateMetricCardTable function with pagination
+    // Enhanced populateMetricCardTable function for EOL Findings with aggregation
+```
+
+function populateMetricCardTable(cardType, data, tbody) {
+currentPresentationData = data || [];
+currentPageIndex = 0;
+
+```
+if (!data || data.length === 0) {
+    // Special handling for quality alerts - show image instead of text
+    if (cardType === 'quality-alerts') {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">
+                    <img src="/static/images/no-quality-alerts.png" 
+                         alt="No Quality Alerts" 
+                         style="max-width: 900px; height: auto; margin: 0.2rem 0;"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div style="display: none;">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: #16a34a; margin-left: 1rem;"></i>
+                    </div>
+                </td>
+            </tr>
+        `;
+    } else {
+        // Default empty state for all other sections
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <h4>No recent issues</h4>
+                    <p>Great work maintaining quality!</p>
+                </td>
+            </tr>
+        `;
+    }
+    hidePageControls();
+    return;
+}
+
+if (!data || data.length === 0) {
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <h4>No recent issues</h4>
+                <p>Great work maintaining quality!</p>
+            </td>
+        </tr>
+    `;
+    hidePageControls();
+    return;
+}
+
+// Special handling for EOL Findings aggregation
+if (cardType === 'eol-findings') {
+    currentPresentationData = aggregateEOLFindings(data);
+}
+
+renderCurrentPage(cardType, tbody);
+```
+
+}
+
+function aggregateEOLFindings(findings) {
+const aggregatedMap = new Map();
+
+```
+findings.forEach(finding => {
+    const key = finding.description?.trim().toLowerCase() || 'unknown';
+    
+    if (aggregatedMap.has(key)) {
+        const existing = aggregatedMap.get(key);
+        existing.count++;
+        existing.instances.push(finding);
+        
+        // Keep the most recent date and its shiftID
+        if (new Date(finding.dateRecorded) > new Date(existing.dateRecorded)) {
+            existing.dateRecorded = finding.dateRecorded;
+            existing.shiftID = finding.shiftID;
+        }
+        
+        // Collect all unique ECART numbers
+        if (finding.ecartNumber && !existing.ecartNumbers.includes(finding.ecartNumber)) {
+            existing.ecartNumbers.push(finding.ecartNumber);
+        }
+        
+        // Collect all unique sides
+        if (finding.side && !existing.sides.includes(finding.side)) {
+            existing.sides.push(finding.side);
+        }
+        
+        // Collect all unique cost center locations
+        if (finding.costCenterLocation && finding.costCenterLocation !== 'N/A' && !existing.costCenterLocations.includes(finding.costCenterLocation)) {
+            existing.costCenterLocations.push(finding.costCenterLocation);
+        }
+
+        // Collect all unique additional notes
+        if (finding.additionalNotes && finding.additionalNotes.trim() !== '' && !existing.allNotes.includes(finding.additionalNotes.trim())) {
+            existing.allNotes.push(finding.additionalNotes.trim());
+        }
+    } else {
+        aggregatedMap.set(key, {
+            ...finding,
+            count: 1,
+            instances: [finding],
+            ecartNumbers: finding.ecartNumber ? [finding.ecartNumber] : [],
+            sides: finding.side ? [finding.side] : [],
+            costCenterLocations: finding.costCenterLocation && finding.costCenterLocation !== 'N/A' ? [finding.costCenterLocation] : [],
+            allNotes: finding.additionalNotes && finding.additionalNotes.trim() !== '' ? [finding.additionalNotes.trim()] : [],
+            additionalNotes: finding.additionalNotes || ''
+        });
+    }
+});
+
+return Array.from(aggregatedMap.values())
+    .sort((a, b) => {
+        if (a.count !== b.count) {
+            return b.count - a.count;
+        }
+        return new Date(b.dateRecorded) - new Date(a.dateRecorded);
+    });
+```
+
+}
+
+// Enhanced renderCurrentPage function with aggregation support
+function renderCurrentPage(cardType, tbody) {
+tbody.innerHTML = ‘’;
+
+```
+const startIndex = currentPageIndex * itemsPerPage;
+const endIndex = Math.min(startIndex + itemsPerPage, currentPresentationData.length);
+const pageData = currentPresentationData.slice(startIndex, endIndex);
+
+pageData.forEach(item => {
+    const row = tbody.insertRow();
+    
+    // Add special class for repeated items
+    if (cardType === 'eol-findings' && item.count > 1) {
+        row.classList.add('aggregated-row');
+    }
+    
+    switch(cardType) {
+        case 'scrap':
+row.innerHTML = `
+    <td><span style="font-size: 1.1rem;">${formatDateTime(item.scrapDate || item.date)}</td>
+    <td>
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-weight: bold; font-size: 1.58rem;">${createWrappedText(item.comment, 120)}</span>
+            <button class="capture-action-btn quality" 
+                    onclick="event.stopPropagation(); captureQualityItem(this)" 
+                    data-item-type="Scrap Report"
+                    data-description="${escapeHtml(item.comment || 'Scrap reported')}"
+                    data-reason="${escapeHtml(item.why || '')}"
+                    data-report-id="${item.qualityMainID || ''}"
+                    title="Add to Meeting Actions">
+            </button>
+        </div>
+    </td>
+    <td>${createWrappedText(item.why, 80)}</td>
+`;
+break;
+            
+        // ... other cases remain the same
+            case 'claims':
+row.innerHTML = `
+    <td><span style="font-size: 0.8rem;">${formatDateTime(item.reportedDate)}</span></td>
+    <td><span style="font-weight: bold; font-size: 1.42rem;">${createWrappedText(item.event, 80)}</span></td>
+    <td>${item.responsible || 'N/A'}</td>
+    <td>${item.actionTaken || 'N/A'}</td>
+    <td><span class="severity-badge severity-${(item.severityBI || 'Medium').toLowerCase()}">${item.severityBI || 'Medium'}</span></td>
+    <td>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-weight: 500;">${item.owner || 'N/A'}</span>
+            <button class="capture-action-btn quality" 
+                    onclick="event.stopPropagation(); captureQualityItem(this)" 
+                    data-item-type="Quality Claim"
+                    data-description="${escapeHtml(item.event || 'Quality claim reported')}"
+                    data-responsible="${escapeHtml(item.responsible || '')}"
+                    data-customer="${escapeHtml(item.customer || '')}"
+                    title="Add to Meeting Actions">
+            </button>
+        </div>
+    </td>
+    <td style="text-align:center;">
+        ${item.claimID ? `
+        <div class="sdr-image-preview" style="justify-content:center;">
+            <span class="sdr-image-icon"
+                  onclick="event.stopPropagation(); showClaimPhotos(event,'${item.claimID}')">
+                <i class="fas fa-images"></i>
+            </span>
+        </div>` : `<span style="color:#d1d5db;">—</span>`}
+    </td>
+`;
+break;
+            
+                case 'key-turns':
+let keyBadgeClass = 'type-badge';
+let keyColor = '';
+if (item.keyType && item.keyType.toLowerCase().includes('yellow')) {
+    keyColor = 'background: #fbbf24; color: #92400e;';
+} else {
+    keyColor = 'background: #3b82f6; color: #ffffff;';
+}
+
+row.innerHTML = `
+    <td>${formatDateTime(item.timestamp)}</td>
+    <td><span class="${keyBadgeClass}" style="${keyColor}">${item.keyType}</span></td>
+    <td><span style="font-size: 1.2rem; font-weight: 600;">${item.orderNumber || 'N/A'}</span></td>  <!-- ADD THIS LINE -->
+    <td>
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-weight: 700; font-size: 1.6rem;">${createWrappedText(item.description, 190)}</span>
+            <button class="capture-action-btn quality" 
+                    onclick="event.stopPropagation(); captureQualityItem(this)" 
+                    data-item-type="Key Turn"
+                    data-description="${escapeHtml(item.description || 'Key turn event')}"
+                    data-key-type="${escapeHtml(item.keyType || '')}"
+                    data-order-number="${item.orderNumber || ''}"
+                    title="Add to Meeting Actions">
+            </button>
+        </div>
+    </td>
+`;
+break;
+        
+        case 'eol-issues':
+            row.innerHTML = `
+                <td><span style="font-size: 0.9rem;">${formatDateTime(item.createdDate)}</td>
+                <td>${item.station}</td>
+                <td><span style="font-weight: bold; font-size: 1.3rem;">${createWrappedText(item.description, 100)}</span></td>
+                <td>${item.identifiedBy || 'N/A'}</td>
+                <td>${createWrappedText(item.actionTaken || 'Pending', 80)}</td>
+            `;
+            break;
+            
+        case 'eol-findings':
+            renderEOLFindingsRow(row, item);
+            break;
+```
+
+// Updated containment case in the populateMetricCardTable function
+case ‘containment’:
+row.innerHTML = `
+<td>${getSupplierLogoCell(item.supplierName || item.supplier, item.supplierLogoPath, item.supplierLogoId)}</td>
+<td>
+<div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+${createWrappedText(item.issueDescription || item.nonConformance, 100)}
+<button class="capture-action-btn quality" 
+onclick="event.stopPropagation(); captureQualityItem(this)" 
+data-item-type="Supplier Containment"
+data-description="${escapeHtml(item.issueDescription || item.nonConformance || 'Supplier containment action')}"
+data-supplier="${escapeHtml(item.supplierName || item.supplier || '')}"
+data-defect-rate="${item.defectRate || 0}"
+data-action-taken="${escapeHtml(item.actionTaken || '')}"
+title="Add to Meeting Actions">
+</button>
+</div>
+</td>
+<td>${createWrappedText(item.actionTaken || ‘N/A’, 80)}</td>
+<td style="text-align: right; font-weight: bold; font-size: 1.5rem;">
+${(item.totalPartsInspected || 0).toLocaleString()}
+
+</td>
+<td style="text-align: right; font-weight: bold; color: #dc2626; font-size: 1.5rem;">
+  ${(item.totalDefectParts || 0).toLocaleString()}
+</td>
+<td style="text-align: right; font-weight: bold; font-size: 1.3rem; color: ${(item.defectRate || 0) > 5 ? '#dc2626' : (item.defectRate || 0) > 2 ? '#f59e0b' : '#16a34a'};">
+  ${(item.defectRate || 0).toFixed(2)}%
+</td>
+
+```
+    <td style="font-size: 0.9rem;">
+```
+
+${item.assignedTo || item.owner || ‘N/A’}
+
+</td>
+
+```
+`;
+break;
+```
+
+case ‘quality-alerts’:
+const commentCount = item.commentCount || 0;
+const hasComments = commentCount > 0;
+const isExpiringSoon = item.isExpiring || false;
+
+```
+// Add expiring-soon styling if applicable
+if (isExpiringSoon) {
+    row.classList.add('quality-alert-expiring');
+}
+
+// Build expiration info for the authorization column area
+let expiringInfoHtml = '';
+if (isExpiringSoon && item.expirationDate) {
+    const expDate = new Date(item.expirationDate + 'T00:00:00');
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+    const formattedDate = expDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
+    let badgeClass, badgeText;
+    if (diffDays <= 0) {
+        badgeClass = 'expires-today';
+        badgeText = '<i class="fas fa-exclamation-circle"></i> Expires Today!';
+    } else if (diffDays === 1) {
+        badgeClass = 'expires-today';
+        badgeText = '<i class="fas fa-exclamation-triangle"></i> Expires Tomorrow';
+    } else {
+        badgeClass = 'expires-soon';
+        badgeText = `<i class="fas fa-clock"></i> ${diffDays} days left`;
+    }
+    
+    expiringInfoHtml = `
+        <div style="margin-top: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <div style="font-size: 1.4rem; color: #92400e; font-weight: 700;">${formattedDate}</div>
+            <span class="expiring-badge ${badgeClass}">${badgeText}</span>
+        </div>
+    `;
+}
+
+row.innerHTML = `
+    <td class="alert-id" style="font-size: 1.9rem; font-weight: bold; padding: 1px 2px; text-align: center; ${isExpiringSoon ? 'color: #92400e;' : ''}">
+        ${item.idQA}
+    </td>
+    <td style="padding: 8px 12px;">
+        <div class="alert-preview-defect" style="font-size: 2rem; font-weight: bold; padding:1px; margin-bottom: 0.4rem; ${isExpiringSoon ? 'color: #78350f;' : ''}">
+            ${createWrappedText(item.defect, 80)}
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="view-quality-alert-btn" ${isExpiringSoon ? 'style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245,158,11,0.3);"' : ''} onclick="event.stopPropagation(); openQualityAlertModal('${item.idQA}')">
+                <i class="fas fa-file-alt"></i>
+                View Full Quality Alert
+            </button>
+            <button class="capture-action-btn quality" 
+                    onclick="event.stopPropagation(); captureQualityItem(this)" 
+                    data-item-type="Quality Alert"
+                    data-description="${escapeHtml(item.defect || 'Quality alert active')}"
+                    data-alert-id="${item.idQA}"
+                    data-authorization="${escapeHtml(item.qualityAuth || item.QualityAuthorization || '')}"
+                    title="Add to Meeting Actions">
+            </button>
+        </div>
+    </td>
+    <td style="padding: 12px 16px; text-align: center; vertical-align: middle;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div style="font-weight: 600; color: ${isExpiringSoon ? '#92400e' : '#3f567a'}; font-size: 1.3rem;">
+                ${item.qualityAuth || item.QualityAuthorization || item.createdBy || 'Unknown'}
+            </div>
+        </div>
+        ${expiringInfoHtml}
+    </td>
+    <td style="padding: 12px 16px; text-align: center; vertical-align: middle;">
+        ${hasComments 
+            ? `<div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                   <i class="fas fa-check-circle" style="font-size: 1.8rem; color: #16a34a;"></i>
+                   <span style="font-size: 1.6rem; color: #16a34a; font-weight: 700;">Done (${commentCount})</span>
+               </div>`
+            : `<div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 1.8rem; color: #f59e0b;"></i>
+                   <span style="font-size: 1.7rem; color: #f59e0b; font-weight: 700;">Pending</span>
+               </div>`
+        }
+    </td>
+`;
+row.classList.add('quality-alert-row');
+break;
+
+
+            
+       case 'mrb':
+// Check if this is the general note
+if (item.isGeneralNote) {
+    row.style.backgroundColor = '#fef3c7';
+    row.style.borderLeft = '4px solid #f59e0b';
+    row.innerHTML = `
+        <td colspan="6" style="padding: 0.5rem 1rem;">
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                <style="color: #f59e0b; font-size: 1.2rem; margin-top: 0.1rem;"></i>
+```
+
+<div style="flex: 1; text-align: left;">
+  <strong style="color: #92400e; font-size: 1rem; display: block; margin-bottom: -2.25rem;">
+  </strong>
+<span style="color: #78350f; font-size: 1.9rem; line-height: 1.3; white-space: pre-line; font-weight: 600;">
+  ${item.note}
+</span>
+
+</div>
+
+```
+            </div>
+        </td>
+    `;
+} else {
+    // Render regular MRB part (existing code)
+    row.innerHTML = `
+        <td style="font-size: 0.85em;">${item.partNumber}</td>
+        <td>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="font-size: 1.10em;">${createWrappedText(item.partDescription, 80)}</span>
+                <button class="capture-action-btn quality" 
+                        onclick="event.stopPropagation(); captureQualityItem(this)" 
+                        data-item-type="MRB Part"
+                        data-description="${escapeHtml(item.partDescription || 'MRB part pending review')}"
+                        data-part-number="${escapeHtml(item.partNumber || '')}"
+                        data-quarantine-reason="${escapeHtml(item.quarantineReason || '')}"
+                        data-age="${item.ageInDays || 0}"
+                        data-quantity="${item.quantity || 0}"
+                        data-note="${escapeHtml(item.note || '')}"
+                        title="Add to Meeting Actions">
+                </button>
+            </div>
+        </td>
+        <td style="text-align: center;">${item.quantity.toLocaleString()}</td>
+        <td style="font-size: 1.28em;"><strong>${createWrappedText(item.quarantineReason, 60)}</strong></td>
+        <td>${getAgeBadge(item.ageInDays)}</td>
+        <td style="font-style: italic; color: #6b7280; font-size: 1rem;">
+            ${item.note && item.note.trim() ? createWrappedText(item.note, 100) : '<span style="color: #d1d5db;">—</span>'}
+        </td>
+    `;
+}
+break;
+```
+
+// Update the SDR case in renderCurrentPage function:
+// Update the SDR case in renderCurrentPage function:
+case ‘sdr’:
+// Create single picture button if images exist
+let imagePreviewHtml = ‘’;
+if (item.okImage || item.nokImage) {
+imagePreviewHtml = `<div class="sdr-image-preview"> <span class="sdr-image-icon"  onmouseenter="showSDRImageTooltip(event, '${item.okImage || ''}', '${item.nokImage || ''}')" onmouseleave="hideSDRImageTooltip()"> <i class="fas fa-images"></i> </span> </div>`;
+}
+
+```
+row.innerHTML = `
+    <td><span style="font-size: 0.9rem;">${formatDateTime(item.dateClosed)}</span></td>
+    <td>${getSupplierLogoCell(item.supplier, item.supplierLogoPath, item.supplierLogoId)}</td>
+    <td><span style="font-size: 0.95rem; color: #4b5563;">${item.material || 'N/A'}</span></td>
+    <td>
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-weight: bold; font-size: 1.1rem;">${createWrappedText(item.detail, 80)}</span>
+            ${imagePreviewHtml}
+            <button class="capture-action-btn quality" 
+                    onclick="event.stopPropagation(); captureQualityItem(this)" 
+                    data-item-type="Supplier Defect Report"
+                    data-description="${escapeHtml(item.detail || 'SDR reported')}"
+                    data-quantity="${item.quantity || 0}"
+                    data-line="${escapeHtml(item.line || '')}"
+                    data-supplier="${escapeHtml(item.supplier || '')}"
+                    title="Add to Meeting Actions">
+            </button>
+        </div>
+    </td>
+    <td style="text-align: center; font-weight: bold; font-size: 1.2rem;">
+        ${item.quantity.toLocaleString()}
+    </td>
+    <td><span style="font-weight: 600; font-size: 1rem;">${item.line || 'N/A'}</span></td>
+`;
+break;
+    }
+});
+
+updatePageIndicator();
+```
+
+}
+
+// =============================================
+// TOP 3 EOL FINDINGS BY MONTH - COMPASS 9.2.2
+// =============================================
+var eolTop3CurrentMonth = new Date();
+var eolAllFindingsCache = [];
+
+function changeTop3Month(direction) {
+eolTop3CurrentMonth.setMonth(eolTop3CurrentMonth.getMonth() + direction);
+updateTop3MonthLabel();
+fetchMonthlyEOLFindings();
+}
+
+function updateTop3MonthLabel() {
+var label = document.getElementById(‘eol-top3-month-label’);
+if (label) {
+label.textContent = eolTop3CurrentMonth.toLocaleDateString(‘en-US’, { month: ‘long’, year: ‘numeric’ });
+}
+}
+
+function renderTop3EOLFindings() {
+var container = document.getElementById(‘eol-top3-cards’);
+if (!container) return;
+var targetMonth = eolTop3CurrentMonth.getMonth();
+var targetYear = eolTop3CurrentMonth.getFullYear();
+var monthFindings = eolAllFindingsCache.filter(function(f) {
+var d = new Date(f.dateRecorded);
+return d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+});
+var aggMap = {};
+monthFindings.forEach(function(f) {
+var key = (f.description || ‘Unknown’).trim().toUpperCase();
+if (aggMap[key]) { aggMap[key].count++; }
+else { aggMap[key] = { description: f.description || ‘Unknown’, count: 1 }; }
+});
+var top3 = Object.values(aggMap).sort(function(a, b) { return b.count - a.count; }).slice(0, 3);
+if (top3.length === 0) {
+container.innerHTML = ‘<div class="eol-top3-empty">No EOL findings for this month</div>’;
+return;
+}
+container.innerHTML = ‘’;
+top3.forEach(function(item, index) {
+var card = document.createElement(‘div’);
+card.className = ‘eol-top3-card’;
+var pdcaKey = ‘pdca_’ + targetYear + ‘*’ + targetMonth + ’*’ + item.description.trim().toUpperCase().replace(/\s+/g, ‘_’);
+var isChecked = false;
+try { isChecked = localStorage.getItem(pdcaKey) === ‘true’; } catch(e) {}
+card.innerHTML =
+‘<div class="eol-top3-rank">#’ + (index + 1) + ‘</div>’ +
+‘<div class="eol-top3-issue-name">’ + escapeHtml(item.description) + ‘</div>’ +
+‘<div class="eol-top3-count-row">’ +
+‘<div class="eol-top3-count"><i class="fas fa-redo-alt"></i> ’ + item.count + ’ occurrence’ + (item.count !== 1 ? ‘s’ : ‘’) + ‘</div>’ +
+‘<label class="eol-top3-pdca ' + (isChecked ? 'checked' : '') + '" onclick="event.stopPropagation();">’ +
+‘<input type=“checkbox” ’ + (isChecked ? ‘checked’ : ‘’) + ’ onchange=“togglePDCA(this, '’ + pdcaKey + ‘')”>’ +
+‘<span class="eol-top3-pdca-label">PDCA Opened?</span>’ +
+‘</label>’ +
+‘</div>’;
+container.appendChild(card);
+});
+}
+
+function togglePDCA(checkbox, key) {
+var label = checkbox.closest(’.eol-top3-pdca’);
+if (checkbox.checked) {
+label.classList.add(‘checked’);
+try { localStorage.setItem(key, ‘true’); } catch(e) {}
+} else {
+label.classList.remove(‘checked’);
+try { localStorage.removeItem(key); } catch(e) {}
+}
+}
+
+function fetchMonthlyEOLFindings() {
+var targetMonth = eolTop3CurrentMonth.getMonth() + 1;
+var targetYear = eolTop3CurrentMonth.getFullYear();
+fetch(’/api/quality/eol-findings/monthly?month=’ + targetMonth + ‘&year=’ + targetYear)
+.then(function(response) {
+if (response.ok) return response.json();
+throw new Error(‘not ok’);
+})
+.then(function(data) {
+if (Array.isArray(data)) {
+eolAllFindingsCache = data;
+renderTop3EOLFindings();
+}
+})
+.catch(function(e) {
+console.log(‘Monthly EOL endpoint not available, using cached data’);
+renderTop3EOLFindings();
+});
+}
+
+// Patch populateMetricCardTable to capture EOL findings data
+(function() {
+var checkPatch = setInterval(function() {
+if (typeof window.populateMetricCardTable === ‘function’) {
+clearInterval(checkPatch);
+var _origPopulate = window.populateMetricCardTable;
+window.populateMetricCardTable = function(cardType, data) {
+if (cardType === ‘eol-findings’ && Array.isArray(data)) {
+// Merge into cache without duplicates
+data.forEach(function(item) {
+var dominated = eolAllFindingsCache.some(function(c) {
+return c.dateRecorded === item.dateRecorded && c.description === item.description;
+});
+if (!dominated) eolAllFindingsCache.push(item);
+});
+updateTop3MonthLabel();
+renderTop3EOLFindings();
+}
+return _origPopulate.apply(this, arguments);
+};
+}
+}, 100);
+})();
+
+document.addEventListener(‘DOMContentLoaded’, function() {
+updateTop3MonthLabel();
+fetchMonthlyEOLFindings();
+});
+
+function renderEOLFindingsRow(row, item) {
+const shiftCell = document.createElement(‘td’);
+const dateCell = document.createElement(‘td’);
+const descriptionCell = document.createElement(‘td’);
+const ecartCell = document.createElement(‘td’);
+const locationCell = document.createElement(‘td’);  // Location cell
+const escalationCell = document.createElement(‘td’);
+const sideCell = document.createElement(‘td’);
+
+```
+// Shift cell - sun for shift 1, moon for shift 2
+const shiftID = item.shiftID;
+const shiftIcon = shiftID === 1 ? '🔆' : shiftID === 2 ? '⏾' : '';
+shiftCell.innerHTML = `<span style="font-size: 1.4em;">${shiftIcon}</span>`;
+shiftCell.style.textAlign = 'center';
+row.appendChild(shiftCell);
+
+// Time cell - show only hours (no date)
+const dateStr = item.dateRecorded;
+let timeOnly = 'N/A';
+if (dateStr && dateStr !== 'N/A') {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+        timeOnly = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+}
+dateCell.innerHTML = `<span style="font-size: 1.2rem; font-weight: 600;">${timeOnly}</span>`;
+row.appendChild(dateCell);
+
+// Description cell with count badge AND action button
+const descriptionContainer = document.createElement('div');
+descriptionContainer.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;';
+
+// Create the main description container with text and count badge
+const textContainer = document.createElement('div'); 
+textContainer.className = 'description-container';
+
+const descriptionText = document.createElement('span');
+descriptionText.style.fontWeight = 'bold';
+descriptionText.style.color = '#3f567a';
+descriptionText.style.fontSize = '1.5rem';
+descriptionText.innerHTML = createWrappedText(item.description, 120);
+
+textContainer.appendChild(descriptionText);
+
+// Add count badge if multiple occurrences
+if (item.count > 1) {
+    const countBadge = document.createElement('span');
+    countBadge.className = 'count-badge';
+    countBadge.textContent = `×${item.count}`;
+    countBadge.setAttribute('data-count', item.count);
+    
+    // Dynamic styling based on count
+    const badgeStyle = getBadgeStyle(item.count);
+    countBadge.style.background = badgeStyle.background;
+    countBadge.style.boxShadow = badgeStyle.boxShadow;
+    
+    if (item.count >= 10) {
+        countBadge.style.animation = 'criticalBadgePulse 1.5s ease-in-out infinite alternate';
+    }
+    
+    textContainer.appendChild(countBadge);
+}
+
+// Add the text container to the main container
+descriptionContainer.appendChild(textContainer);
+
+// Create and add the action button
+const actionButton = document.createElement('button');
+actionButton.className = 'capture-action-btn quality';
+actionButton.onclick = function(e) { e.stopPropagation(); captureQualityItem(this); };
+actionButton.setAttribute('data-item-type', 'EOL Finding');
+actionButton.setAttribute('data-description', escapeHtml(item.description || 'EOL finding reported'));
+actionButton.setAttribute('data-ecart-numbers', escapeHtml(item.ecartNumbers?.join(', ') || 'N/A'));
+actionButton.setAttribute('data-sides', escapeHtml(item.sides?.join(', ') || 'N/A'));
+actionButton.setAttribute('data-count', item.count || 1);
+actionButton.setAttribute('data-location', escapeHtml(item.costCenterLocations?.join(', ') || item.costCenterLocation || 'N/A'));
+actionButton.setAttribute('data-escalation', escapeHtml(item.eButton || 'N/A'));
+actionButton.title = 'Add to Meeting Actions';
+
+descriptionContainer.appendChild(actionButton);
+
+descriptionCell.appendChild(descriptionContainer);
+row.appendChild(descriptionCell);
+
+// ECART cell - show all unique ECART numbers
+const ecartText = item.ecartNumbers.length > 0 ? item.ecartNumbers.join(', ') : 'N/A';
+ecartCell.innerHTML = `<span style="font-style: italic; color: #f1c40f; font-weight: 700; font-size: 1.4rem;">${ecartText}</span>`;
+row.appendChild(ecartCell);
+
+// Location cell (Front/Rear based on costCenterID)
+const locationText = item.costCenterLocations?.length > 0 ? item.costCenterLocations.join(', ') : item.costCenterLocation || 'N/A';
+let locationColor = '#6b7280'; // Default gray
+if (locationText.includes('Front')) {
+    locationColor = '#3f567a'; // Blue
+} else if (locationText.includes('Rear')) {
+    locationColor = '#3f567a'; // Blue
+}
+locationCell.innerHTML = `<span style="font-weight: bold; color: ${locationColor}; font-size: 1.1rem;">${locationText}</span>`;
+row.appendChild(locationCell);
+
+// Escalation cell (E-Button)
+escalationCell.innerHTML = `<span style="font-size: 1.1rem;">${item.eButton || 'N/A'}</span>`;
+row.appendChild(escalationCell);
+
+// Side cell - show all unique sides
+const sideText = item.sides.length > 0 ? item.sides.join(', ') : 'N/A';
+sideCell.innerHTML = `<span style="font-size: 0.9rem;">${sideText}</span>`;
+row.appendChild(sideCell);
+
+// Additional Notes cell
+const notesCell = document.createElement('td');
+const notesText = item.allNotes && item.allNotes.length > 0 ? item.allNotes.join('; ') : (item.additionalNotes || '');
+notesCell.innerHTML = `<span style="font-size: 1.2rem; font-weight: 600; color: #4a5568;">${notesText}</span>`;
+row.appendChild(notesCell);
+```
+
+}
+
+```
+    // Show pagination controls
+
+
+    // Hide pagination controls
+    function hidePageControls() {
+        const pageControls = document.getElementById('pageControls');
+        if (pageControls) {
+            pageControls.remove();
+        }
+    }
+
+    // Change page function
+    function changePage(direction) {
+        const totalPages = Math.ceil(currentPresentationData.length / itemsPerPage);
+        
+        if (direction === 1 && currentPageIndex < totalPages - 1) {
+            currentPageIndex++;
+        } else if (direction === -1 && currentPageIndex > 0) {
+            currentPageIndex--;
+        } else {
+            return;
+        }
+
+        const currentCardType = getCurrentCardType();
+        if (currentCardType) {
+            const tbody = document.getElementById(`${currentCardType}-details-tbody`);
+            if (tbody) {
+                renderCurrentPage(currentCardType, tbody);
+            }
+        }
+
+        updatePageButtons();
+    }
+
+    // Get current expanded card type
+    function getCurrentCardType() {
+        for (const cardType of expandedMetricCards) {
+            return cardType;
+        }
+        return null;
+    }
+
+    // Update page indicator
+    function updatePageIndicator() {
+        const pageIndicator = document.getElementById('pageIndicator');
+        if (pageIndicator) {
+            const totalPages = Math.ceil(currentPresentationData.length / itemsPerPage);
+            pageIndicator.textContent = `Page ${currentPageIndex + 1} of ${totalPages}`;
+        }
+    }
+
+    // Update page button states
+    function updatePageButtons() {
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const totalPages = Math.ceil(currentPresentationData.length / itemsPerPage);
+
+        if (prevBtn) {
+            prevBtn.disabled = currentPageIndex === 0;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentPageIndex >= totalPages - 1;
+        }
+    }
+
+    // Enhanced text wrapping function
+    function createWrappedText(text, maxLength = 120, allowFullText = true) {
+        if (!text) return 'N/A';
+        
+        if (document.querySelector('.metric-card.expanded') && allowFullText) {
+            maxLength = 200;
+        }
+        
+        if (text.length <= maxLength) {
+            return `<span class="full-text">${text}</span>`;
+        }
+        
+        const truncated = text.substring(0, maxLength) + '...';
+        return `<span class="text-tooltip" data-full-text="${text.replace(/"/g, '&quot;')}" title="Click to see full text">${truncated}</span>`;
+    }
+
+    // Helper functions
+    function formatDateTime(dateStr) {
+        if (!dateStr || dateStr === 'N/A') return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    }
+
+    function truncateText(text, maxLength, showTooltip = true) {
+        if (!text) return 'N/A';
+        
+        const isPresentation = document.querySelector('.metric-card.expanded');
+        if (isPresentation) {
+            maxLength = Math.floor(maxLength * 1.5);
+        }
+        
+        if (text.length <= maxLength) return text;
+        
+        if (showTooltip) {
+            return `<span class="text-tooltip" data-full-text="${text.replace(/"/g, '&quot;')}" title="${text}">${text.substring(0, maxLength)}...</span>`;
+        }
+        
+        return text.substring(0, maxLength) + '...';
+    }
+
+    // Helper function for age badges
+```
+
+function getAgeBadge(days) {
+let className = ‘severity-low’;
+if (days > 14) className = ‘severity-high’;
+else if (days > 7) className = ‘severity-medium’;
+else if (days > 3) className = ‘severity-low’;
+
+```
+return `<span class="severity-badge ${className}" style="font-size: 1.05em; font-weight: bold;">${days} days</span>`;
+```
+
+}
+
+```
+    // Text modal for full content
+    function showTextModal(text, triggerElement) {
+        const existingModal = document.getElementById('textModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        const modal = document.createElement('div');
+        modal.id = 'textModal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 2rem;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+        `;
+        
+        content.innerHTML = `
+            <button style="
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #6b7280;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            " onclick="this.closest('#textModal').remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 style="margin-bottom: 1rem; color: var(--quality-color);">Full Text</h3>
+            <div style="
+                line-height: 1.6;
+                color: #374151;
+                font-size: 1rem;
+                word-wrap: break-word;
+                white-space: pre-wrap;
+            ">${text}</div>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+        
+        const escapeHandler = function(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Toggle header visibility
+    function toggleHeader() {
+        const header = document.getElementById('dashboardHeader');
+        const toggleBtn = document.getElementById('headerToggleBtn');
+        const icon = toggleBtn.querySelector('i');
+        
+        header.classList.toggle('hidden');
+        
+        if (header.classList.contains('hidden')) {
+            icon.className = 'fas fa-eye';
+            toggleBtn.title = 'Show Header';
+        } else {
+            icon.className = 'fas fa-eye-slash';
+            toggleBtn.title = 'Hide Header';
+        }
+    }
+
+    // Show specific quality section
+    function showSection(section) {
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        document.querySelectorAll('.daily-incidents').forEach(sectionEl => {
+            sectionEl.style.display = 'none';
+        });
+
+        const selectedSection = document.getElementById(`${section}-section`);
+        if (selectedSection) {
+            selectedSection.style.display = 'block';
+            
+            if (section !== 'overview') {
+                loadSectionData(section);
+            }
+        }
+    }
+
+    // Load data for specific sections
+```
+
+// Load data for specific sections
+
+```
+    // Update time range display based on day of week
+    function updateKeyTurnsTimeRange() {
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const isMonday = (dayOfWeek === 1);
+        const hours = isMonday ? 72 : 24;
+        const timeRangeText = isMonday ? '(Last 72 Hours)' : '(Last 24 Hours)';
+        
+        // Update the section title
+        const timeRangeElement = document.getElementById('keyTurnsTimeRange');
+        if (timeRangeElement) {
+            timeRangeElement.textContent = timeRangeText;
+        }
+        
+        // Update metric card label if it exists
+        const metricLabel = document.getElementById('keyTurnsMetricLabel');
+        if (metricLabel) {
+            metricLabel.textContent = `Key Turns (${hours}h)`;
+        }
+        
+        console.log(`Key turns time range set to ${hours} hours (${isMonday ? 'Monday' : 'Other day'})`);
+    }
+```
+
+async function loadSectionData(section) {
+try {
+switch(section) {
+case ‘claims’:
+await loadQualityClaims();
+break;
+case ‘key-turns’:
+await loadKeyTurns();
+break;
+case ‘alerts’:
+await loadQualityAlerts();
+break;
+case ‘eol-findings’:
+await loadEOLFindings();
+break;
+case ‘quality-alerts’:
+await loadQualityAlertsActive();
+break;
+case ‘scrap’:
+await loadScrapReview();
+break;
+case ‘sdr’:  // ADD THIS CASE
+await loadSDREvents();
+break;
+case ‘containment’:
+await loadSupplierContainment();
+break;
+case ‘mrb’:
+await loadMRBCage();
+break;
+
+```
+    }
+} catch (error) {
+    console.error(`Error loading ${section} data:`, error);
+    showNotification(`Error loading ${section} data`, 'error');
+}
+```
+
+}
+
+```
+    // Load main quality data
+    async function loadQualityData() {
+        try {
+            document.getElementById('quality-loading').style.display = 'block';
+            document.getElementById('quality-content').style.display = 'none';
+
+            updateCurrentDate();
+
+            const summaryResponse = await fetch('/api/quality/summary');
+            const summary = await summaryResponse.json();
+            updateQualityMetrics(summary);
+
+            document.getElementById('quality-loading').style.display = 'none';
+            document.getElementById('quality-content').style.display = 'block';
+
+        } catch (error) {
+            console.error('Error loading quality data:', error);
+            document.getElementById('quality-loading').innerHTML = 
+                '<div class="loading-spinner"></div><h3 style="color: #ef4444;">Error loading data</h3><p>Please check your database connection and try again.</p>';
+        }
+    }
+
+    // Update current date and status
+    function updateCurrentDate() {
+        const now = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Update quality metrics
+    function updateQualityMetrics(summary) {
+        document.getElementById('quality-claims').textContent = summary.quality_claims_24h || 0;
+        document.getElementById('key-turns').textContent = summary.key_turns_24h || 0;
+        document.getElementById('eol-issues').textContent = summary.eol_issues_24h || 0;
+        document.getElementById('eol-findings').textContent = summary.eol_findings_24h || 0;
+        document.getElementById('scrap-cost').textContent = summary.scrap_reports_24h || 0;
+        document.getElementById('active-containments').textContent = summary.active_containments || 0;
+        document.getElementById('mrb-parts').textContent = summary.mrb_parts || 0;
+        document.getElementById('quality-alerts-active').textContent = summary.quality_alerts_active || 0;
+        document.getElementById('sdr-count').textContent = summary.sdr_count_24h || 0;  // ADD THIS LINE
+
+        const totalIssues = (summary.quality_claims_24h || 0) + (summary.key_turns_24h || 0) + (summary.eol_issues_24h || 0) + (summary.eol_findings_24h || 0) + (summary.quality_alerts_active || 0) + (summary.scrap_reports_24h || 0);
+        const statusElement = document.getElementById('daily-status');
+        
+        if (totalIssues === 0) {
+            statusElement.textContent = "🎉 No critical quality issues today - Excellent work!";
+            statusElement.style.color = "#88E788";
+        } else if (totalIssues <= 5) {
+            statusElement.textContent = `⚠️ ${totalIssues} quality issue(s) reported today - Monitor closely`;
+            statusElement.style.color = "#f39891";
+        } else {
+            statusElement.textContent = `⚠️ ${totalIssues} quality issues today - Action required`;
+            statusElement.style.color = "#f39891";
+        }
+
+        updateCardColors(summary);
+    }
+
+    // Update card colors based on metrics
+    function updateCardColors(summary) {
+        const claimsCard = document.getElementById('quality-claims-card');
+        const claimsCount = summary.quality_claims_24h || 0;
+        if (claimsCount === 0) {
+            claimsCard.className = claimsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' success';
+        } else if (claimsCount <= 2) {
+            claimsCard.className = claimsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' warning';
+        } else {
+            claimsCard.className = claimsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' danger';
+        }
+
+        const eolFindingsCard = document.getElementById('eol-findings-card');
+        const eolFindingsCount = summary.eol_findings_24h || 0;
+        if (eolFindingsCount === 0) {
+            eolFindingsCard.className = eolFindingsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' success';
+        } else if (eolFindingsCount <= 3) {
+            eolFindingsCard.className = eolFindingsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' warning';
+        } else {
+            eolFindingsCard.className = eolFindingsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' danger';
+        }
+
+        const scrapCard = document.getElementById('scrap-cost-card');
+        const scrapCount = summary.scrap_reports_24h || 0;
+        if (scrapCount === 0) {
+            scrapCard.className = scrapCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' success';
+        } else if (scrapCount <= 5) {
+            scrapCard.className = scrapCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' warning';
+        } else {
+            scrapCard.className = scrapCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' danger';
+        }
+
+        const qualityAlertsCard = document.getElementById('quality-alerts-card');
+        const qualityAlertsCount = summary.quality_alerts_active || 0;
+        if (qualityAlertsCount === 0) {
+            qualityAlertsCard.className = qualityAlertsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' success';
+        } else if (qualityAlertsCount <= 2) {
+            qualityAlertsCard.className = qualityAlertsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' warning';
+        } else {
+            qualityAlertsCard.className = qualityAlertsCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' danger';
+        }
+
+        const sdrCard = document.getElementById('sdr-card');
+const sdrCount = summary.sdr_count_24h || 0;
+if (sdrCount === 0) {
+    sdrCard.className = sdrCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' success';
+} else if (sdrCount <= 3) {
+    sdrCard.className = sdrCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' warning';
+} else {
+    sdrCard.className = sdrCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' danger';
+}
+
+       
+
+        const eolCard = document.getElementById('eol-issues-card');
+        const eolCount = summary.eol_issues_24h || 0;
+        if (eolCount === 0) {
+            eolCard.className = eolCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' success';
+        } else if (eolCount <= 3) {
+            eolCard.className = eolCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' warning';
+        } else {
+            eolCard.className = eolCard.className.replace(/\b(success|warning|danger)\b/g, '') + ' danger';
+        }
+    }
+
+    // Modern notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            border: 1px solid rgba(33, 150, 243, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 320px;
+            color: #374151;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+        `;
+
+        const icon = type === 'info' ? 'fa-info-circle' : type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+        const color = type === 'info' ? '#2196F3' : type === 'success' ? '#4CAF50' : '#f44336';
+
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas ${icon}" style="color: ${color}; font-size: 1.2rem;"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 4000);
+    }
+
+    // Refresh all data
+    function refreshData() {
+        const refreshBtn = document.querySelector('.refresh-btn');
+        refreshBtn.style.transform = 'scale(1.1) rotate(360deg)';
+        
+        loadQualityData().then(() => {
+            showNotification('Quality data refreshed successfully!', 'success');
+            setTimeout(() => {
+                refreshBtn.style.transform = 'scale(1) rotate(0deg)';
+            }, 600);
+        }).catch(() => {
+            showNotification('Failed to refresh quality data', 'error');
+            refreshBtn.style.transform = 'scale(1) rotate(0deg)';
+        });
+    }
+
+    // FIXED: Enhanced keyboard navigation with presentation mode detection
+    document.addEventListener('keydown', function(e) {
+        // FIXED: Check if we're in presentation mode first
+        if (inPresentationMode && expandedMetricCards.size > 0) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                const totalPages = Math.ceil(currentPresentationData.length / itemsPerPage);
+                if (currentPageIndex < totalPages - 1) {
+                    changePage(1);
+                } else {
+                    // At last page, move to next presentation section
+                    navigatePresentation('next');
+                }
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentPageIndex > 0) {
+                    changePage(-1);
+                } else {
+                    // At first page, move to previous presentation section
+                    navigatePresentation('prev');
+                }
+            } else if (e.key === 'PageDown') {
+                e.preventDefault();
+                changePage(1);
+            } else if (e.key === 'PageUp') {
+                e.preventDefault();
+                changePage(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                currentPageIndex = 0;
+                const currentCardType = getCurrentCardType();
+                if (currentCardType) {
+                    const tbody = document.getElementById(`${currentCardType}-details-tbody`);
+                    if (tbody) {
+                        renderCurrentPage(currentCardType, tbody);
+                        updatePageButtons();
+                    }
+                }
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                const totalPages = Math.ceil(currentPresentationData.length / itemsPerPage);
+                currentPageIndex = totalPages - 1;
+                const currentCardType = getCurrentCardType();
+                if (currentCardType) {
+                    const tbody = document.getElementById(`${currentCardType}-details-tbody`);
+                    if (tbody) {
+                        renderCurrentPage(currentCardType, tbody);
+                        updatePageButtons();
+                    }
+                }
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                closePresentationMode();
+            }
+            return; // Exit early - don't process section navigation
+        }
+        
+        // FIXED: Only process section navigation if NOT in presentation mode
+        if (!inPresentationMode) {
+            // Don't navigate if user is typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                return;
+            }
+            
+            // Let section navigation handle these keys
+            // (section navigation script will handle ArrowRight/ArrowLeft for sections)
+        }
+        
+        if (e.key === 'r' || e.key === 'R') {
+            if (e.ctrlKey || e.metaKey) {
+                return;
+            }
+            e.preventDefault();
+            refreshData();
+        }
+
+        if (e.key === 'h' || e.key === 'H') {
+            if (!e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                toggleHeader();
+            }
+        }
+
+        // Number keys for quick card access (only when not in presentation mode)
+        if (!inPresentationMode) {
+            const sectionKeys = {
+                '0': 'overview',
+                '1': 'claims',
+                '2': 'key-turns',
+                '3': 'alerts',
+                '4': 'eol-findings',
+                '5': 'quality-alerts',
+                '6': 'sdr',  
+                '7': 'scrap',
+                '8': 'containment',
+                '9': 'mrb',
+            };
+
+            if (sectionKeys[e.key] && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                const sectionName = sectionKeys[e.key];
+                
+                if (presentationSections.includes(sectionName)) {
+                    enterPresentationMode(sectionName);
+                } else {
+                    const tabs = document.querySelectorAll('.tab');
+                    const targetIndex = parseInt(e.key);
+                    if (tabs[targetIndex]) {
+                        tabs.forEach(tab => tab.classList.remove('active'));
+                        tabs[targetIndex].classList.add('active');
+                        showSection(sectionKeys[e.key]);
+                    }
+                }
+            }
+        }
+    });
+
+    // Text expansion functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('text-tooltip')) {
+            const fullText = e.target.getAttribute('data-full-text');
+            if (fullText) {
+                showTextModal(fullText, e.target);
+            }
+        }
+    });
+```
+
+let refreshInterval;
+
+// Clear interval when leaving page
+window.addEventListener(‘beforeunload’, () => {
+if (refreshInterval) clearInterval(refreshInterval);
+});
+
+// Start interval after page loads
+window.addEventListener(‘load’, () => {
+refreshInterval = setInterval(refreshData, 30 * 60 * 1000);
+});
+
+```
+    document.addEventListener('DOMContentLoaded', function() {
+    // Update key turns time range based on day
+    updateKeyTurnsTimeRange();
+
+        const scrapCard = document.getElementById('scrap-cost-card');
+        if (scrapCard) {
+            scrapCard.removeAttribute('onclick');
+            scrapCard.addEventListener('click', function() {
+                toggleMetricCard('scrap');
+            });
+        }
+        
+        setTimeout(() => {
+            loadQualityData();
+        }, 300);
+    });
+
+    // Performance monitoring
+    if ('performance' in window) {
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log('Quality Dashboard loaded in:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms');
+            }, 0);
+        });
+    }
+
+    // Placeholder section loading functions (implement these based on your API endpoints)
+    async function loadQualityClaims() { /* Implementation needed */ }
+    async function loadKeyTurns() { /* Implementation needed */ }
+    async function loadQualityAlerts() { /* Implementation needed */ }
+    async function loadEOLFindings() { /* Implementation needed */ }
+    async function loadQualityAlertsActive() { /* Implementation needed */ }
+    async function loadScrapReview() { /* Implementation needed */ }
+```
+
+async function loadSupplierContainment() {
+try {
+const response = await fetch(’/api/quality/supplier-containment’);
+const data = await response.json();
+
+```
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allQualityData.containment = Array.isArray(data) ? data : [];
+    displaySupplierContainmentWithLogos(allQualityData.containment); // ← Change this line
+    console.log('Supplier containment loaded:', allQualityData.containment.length);
+} catch (error) {
+    console.error('Error loading supplier containment:', error);
+    allQualityData.containment = [];
+    displaySupplierContainmentWithLogos([]); // ← And this line
+    showAlert(`Error loading supplier containment: ${error.message}`, 'warning');
+}
+```
+
+}
+
+function displaySupplierContainment(containments) {
+const tbody = document.getElementById(‘containment-tbody’);
+if (!tbody) {
+console.error(‘Containment tbody not found’);
+return;
+}
+
+```
+tbody.innerHTML = '';
+document.getElementById('containment-count').textContent = `${containments.length} action${containments.length !== 1 ? 's' : ''}`;
+
+containments.forEach(containment => {
+    const row = tbody.insertRow();
+    
+    let dateStr = 'N/A';
+    if (containment.createdDate) {
+        try {
+            const date = new Date(containment.createdDate);
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString();
+            }
+        } catch (e) {
+            dateStr = containment.createdDate;
+        }
+    }
+
+    const riskBadge = getRiskBadge(containment.riskLevel || 'Medium');
+    
+    // Use the supplier logo cell function
+    const supplierCell = getSupplierLogoCell(
+        containment.supplierName || item.supplier, 
+        containment.supplierLogoPath, 
+        containment.supplierLogoId
+    );
+
+    row.innerHTML = `
+        <td>${dateStr}</td>
+        <td>${supplierCell}</td>
+        <td>${containment.issueDescription || containment.nonConformance || 'N/A'}</td>
+        <td>${containment.actionTaken || 'N/A'}</td>
+        <td>${containment.statusUpdate || 'N/A'}</td>
+        <td>${(containment.totalPartsInspected || 0).toLocaleString()}</td>
+        <td>${(containment.totalDefectParts || 0).toLocaleString()}</td>
+        <td>${(containment.defectRate || 0).toFixed(2)}%</td>
+        <td>${containment.assignedTo || containment.owner || 'N/A'}</td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editRecord('containment', '${containment.containmentID || ''}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('containment', '${containment.containmentID || ''}')" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+});
+
+if (containments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No containment actions found</td></tr>';
+}
+```
+
+}
+
+// Add this function to your quality.html JavaScript section
+function getSupplierLogoCell(supplierName, logoPath, logoId) {
+if (!logoPath || !logoId) {
+return `<span style="color: #6b7280; font-weight: 500;">${supplierName || 'N/A'}</span>`;
+}
+
+```
+return `
+    <div class="supplier-logo-cell">
+        <img src="${logoPath}" 
+             alt="${supplierName}" 
+             class="supplier-logo-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="supplier-logo-placeholder" style="display: none;">
+            ${supplierName ? supplierName.substring(0, 2).toUpperCase() : 'S'}
+        </div>
+        <span style="font-weight: 500; color: #374151;">${supplierName || 'N/A'}</span>
+    </div>
+`;
+```
+
+}
+
+async function loadMRBCage() {
+try {
+// Show loading state
+const loadingElement = document.getElementById(‘mrb-loading’);
+const tableContainer = document.getElementById(‘mrb-table-container’);
+
+```
+    if (loadingElement) {
+        loadingElement.style.display = 'block';
+    }
+    if (tableContainer) {
+        tableContainer.style.display = 'none';
+    }
+    
+    // Fetch MRB parts
+    const response = await fetch('/api/quality/mrb-cage');
+    const mrbItems = await response.json();
+    
+    // Fetch general note
+    const noteResponse = await fetch('/api/quality/mrb-general-note');
+    const noteData = await noteResponse.json();
+    
+    // Hide loading state
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+    if (tableContainer) {
+        tableContainer.style.display = 'block';
+    }
+    
+    // Display MRB items
+    const tbody = document.getElementById('mrb-tbody') || document.getElementById('mrb-details-tbody');
+    if (!tbody) {
+        console.error('MRB tbody element not found');
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    // Update MRB count in the metric card
+    const mrbCountElement = document.getElementById('mrb-parts');
+    if (mrbCountElement) {
+        mrbCountElement.textContent = mrbItems.length;
+    }
+
+    // **ADD GENERAL NOTE AS FIRST ROW IF IT EXISTS**
+    if (noteData.note && noteData.note.trim()) {
+        const noteRow = tbody.insertRow();
+        noteRow.style.backgroundColor = '#fef3c7'; // Light yellow background
+        noteRow.style.borderLeft = '4px solid #f59e0b'; // Orange left border
+        noteRow.innerHTML = `
+            <td colspan="6" style="padding: 0.5rem 1rem;">
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                    <i class="fas fa-sticky-note" style="color: #f59e0b; font-size: 1.2rem; margin-top: 0.2rem;"></i>
+                    <div style="flex: 1;">
+                        <strong style="color: #92400e; font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">📝 General MRB Note:</strong>
+                        <span style="color: #78350f; font-size: 1rem; line-height: 1.3; white-space: pre-line;">${noteData.note}</span>
+                    </div>
+                </div>
+            </td>
+        `;
+    }
+
+    // Display regular MRB items
+    mrbItems.forEach(item => {
+        const row = tbody.insertRow();
+        
+        // Format the review date
+        let dateStr = 'N/A';
+        if (item.reviewDate) {
+            try {
+                const date = new Date(item.reviewDate);
+                if (!isNaN(date.getTime())) {
+                    dateStr = date.toLocaleDateString();
+                }
+            } catch (e) {
+                dateStr = item.reviewDate;
+            }
+        }
+
+        const statusBadge = getStatusBadge(item.status || 'Open');
+        const ageBadge = getAgeBadge(item.ageInDays || 0);
+
+        // Create the row with all columns
+        row.innerHTML = `
+            <td style="font-size: 0.85em;">${item.partNumber || 'N/A'}</td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span style="font-size: 1.10em;">${createWrappedText(item.partDescription || 'N/A', 80)}</span>
+                    <button class="capture-action-btn quality" 
+                            onclick="event.stopPropagation(); captureQualityItem(this)" 
+                            data-item-type="MRB Part"
+                            data-description="${escapeHtml(item.partDescription || 'MRB part pending review')}"
+                            data-part-number="${escapeHtml(item.partNumber || '')}"
+                            data-quarantine-reason="${escapeHtml(item.quarantineReason || '')}"
+                            data-age="${item.ageInDays || 0}"
+                            data-quantity="${item.quantity || 0}"
+                            data-note="${escapeHtml(item.note || '')}"
+                            title="Add to Meeting Actions">
+                    </button>
+                </div>
+            </td>
+            <td style="text-align: center; font-weight: bold; font-size: 1.2rem;">${(item.quantity || 0).toLocaleString()}</td>
+            <td style="font-size: 1.28em;"><strong>${createWrappedText(item.quarantineReason || 'N/A', 60)}</strong></td>
+            <td>${ageBadge}</td>
+            <td style="font-style: italic; color: #6b7280; font-size: 1rem;">
+                ${item.note && item.note.trim() ? createWrappedText(item.note, 100) : '<span style="color: #d1d5db;">—</span>'}
+            </td>
+        `;
+    });
+
+    if (mrbItems.length === 0 && (!noteData.note || !noteData.note.trim())) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <i class="fas fa-warehouse"></i>
+                    <h3>MRB cage is empty</h3>
+                    <p>No parts pending material review!</p>
+                </td>
+            </tr>
+        `;
+    }
+
+} catch (error) {
+    console.error('Error loading MRB cage:', error);
+    
+    // Hide loading state
+    const loadingElement = document.getElementById('mrb-loading');
+    if (loadingElement) {
+        loadingElement.innerHTML = `
+            <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 2rem;"></i>
+            <p>Error loading MRB data</p>
+        `;
+    }
+    
+    showNotification('Error loading MRB cage', 'error');
+}
+```
+
+}
+
+// Helper function for status badges (if not already defined)
+function getStatusBadge(status) {
+let className = ‘status-open’;
+if (status === ‘Closed’ || status === ‘Complete’) className = ‘status-closed’;
+else if (status === ‘Active’ || status === ‘Open’) className = ‘status-active’;
+else if (status === ‘Available’) className = ‘status-available’;
+
+```
+return `<span class="status-badge ${className}">${status}</span>`;
+```
+
+}
+
+// Helper function for age badges (if not already defined)
+function getAgeBadge(days) {
+let className = ‘severity-low’;
+if (days > 14) className = ‘severity-high’;
+else if (days > 7) className = ‘severity-medium’;
+else if (days > 3) className = ‘severity-low’;
+
+```
+return `<span class="severity-badge ${className}" style="font-size: 1.05em; font-weight: bold;">${days} days</span>`;
+```
+
+}
+
+// Function to determine badge styling based on count
+function getBadgeStyle(count) {
+if (count >= 10) {
+// Critical - Red gradient for 10+ occurrences
+return {
+background: ‘linear-gradient(135deg, #ef4444 0%, #dc2626 100%)’,
+boxShadow: ‘0 3px 8px rgba(239, 68, 68, 0.3)’
+};
+} else if (count >= 3) {
+// Warning - Orange gradient for 3-9 occurrences
+return {
+background: ‘linear-gradient(135deg, #ef4444 0%, #dc2626 100%)’,
+boxShadow: ‘0 3px 8px rgba(245, 158, 11, 0.3)’
+};
+} else {
+// Default - Blue gradient for 2-3 occurrences
+return {
+background: ‘#5c6f94’,
+};
+}
+}
+
+// Enhanced function to add tooltip functionality for aggregated items
+function addAggregationTooltips() {
+document.addEventListener(‘mouseover’, function(e) {
+if (e.target.classList.contains(‘count-badge’)) {
+const row = e.target.closest(‘tr’);
+const aggregatedData = getAggregatedDataForRow(row);
+
+```
+        if (aggregatedData && aggregatedData.instances.length > 1) {
+            showAggregationTooltip(e.target, aggregatedData);
+        }
+    }
+});
+
+document.addEventListener('mouseout', function(e) {
+    if (e.target.classList.contains('count-badge')) {
+        hideAggregationTooltip();
+    }
+});
+```
+
+}
+
+// Function to show detailed tooltip for aggregated items
+function showAggregationTooltip(element, aggregatedData) {
+const existingTooltip = document.getElementById(‘aggregationTooltip’);
+if (existingTooltip) {
+existingTooltip.remove();
+}
+
+```
+const tooltip = document.createElement('div');
+tooltip.id = 'aggregationTooltip';
+tooltip.style.cssText = `
+    position: absolute;
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 350px;
+    z-index: 10001;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+`;
+
+// Create detailed breakdown
+let tooltipContent = `
+    <div style="font-weight: bold; margin-bottom: 0.5rem; color: #60a5fa;">
+        ${aggregatedData.count} occurrences of this issue
+    </div>
+    <div style="margin-bottom: 0.75rem; font-size: 0.85rem; opacity: 0.9;">
+        <strong>Latest:</strong> ${formatDateTime(aggregatedData.dateRecorded)}
+    </div>
+`;
+
+if (aggregatedData.ecartNumbers.length > 0) {
+    tooltipContent += `
+        <div style="margin-bottom: 0.5rem; font-size: 0.85rem;">
+            <strong>ECART(s):</strong> ${aggregatedData.ecartNumbers.join(', ')}
+        </div>
+    `;
+}
+
+if (aggregatedData.sides.length > 0) {
+    tooltipContent += `
+        <div style="margin-bottom: 0.5rem; font-size: 0.85rem;">
+            <strong>Side(s):</strong> ${aggregatedData.sides.join(', ')}
+        </div>
+    `;
+}
+
+// Show all individual timestamps if available
+if (aggregatedData.instances.length > 1) {
+    tooltipContent += `
+        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.2); font-size: 0.8rem;">
+            <strong>Recent occurrences:</strong><br>
+    `;
+    
+    const recentInstances = aggregatedData.instances
+        .sort((a, b) => new Date(b.dateRecorded) - new Date(a.dateRecorded));
+        
+    recentInstances.forEach((instance, index) => {
+        tooltipContent += `• ${formatDateTime(instance.dateRecorded)}<br>`;
+    });
+    
+    tooltipContent += `</div>`;
+}
+
+tooltip.innerHTML = tooltipContent;
+
+// Position tooltip
+const rect = element.getBoundingClientRect();
+const tooltipRect = { width: 350, height: 200 }; // Estimated
+
+let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+let top = rect.top - tooltipRect.height - 10;
+
+// Adjust if tooltip would go off screen
+if (left < 10) left = 10;
+if (left + tooltipRect.width > window.innerWidth - 10) {
+    left = window.innerWidth - tooltipRect.width - 10;
+}
+if (top < 10) {
+    top = rect.bottom + 10;
+}
+
+tooltip.style.left = left + 'px';
+tooltip.style.top = top + 'px';
+
+document.body.appendChild(tooltip);
+
+// Add fade-in animation
+setTimeout(() => {
+    tooltip.style.opacity = '0';
+    tooltip.style.transition = 'opacity 0.2s ease-in';
+    tooltip.style.opacity = '1';
+}, 10);
+```
+
+}
+
+// Function to hide aggregation tooltip
+function hideAggregationTooltip() {
+const tooltip = document.getElementById(‘aggregationTooltip’);
+if (tooltip) {
+tooltip.style.opacity = ‘0’;
+setTimeout(() => {
+if (document.body.contains(tooltip)) {
+document.body.removeChild(tooltip);
+}
+}, 200);
+}
+}
+
+// Helper function to get aggregated data for a row
+function getAggregatedDataForRow(row) {
+// This would need to be connected to your data structure
+// For now, we’ll return null, but you can enhance this to match rows to data
+const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+const startIndex = currentPageIndex * itemsPerPage;
+const dataIndex = startIndex + rowIndex;
+
+```
+if (currentPresentationData && currentPresentationData[dataIndex]) {
+    return currentPresentationData[dataIndex];
+}
+
+return null;
+```
+
+}
+
+// Initialize aggregation tooltips when DOM is ready
+document.addEventListener(‘DOMContentLoaded’, function() {
+addAggregationTooltips();
+});
+
+// Add these functions to your quality.html JavaScript section
+function openQualityAlertModal(alertId) {
+const modal = document.getElementById(‘qualityAlertModal’);
+const documentContainer = document.getElementById(‘qualityAlertDocument’);
+
+```
+// Show modal
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
+
+// Show loading state
+documentContainer.innerHTML = `
+    <div class="loading-state" style="text-align: center; padding: 3rem;">
+        <div class="loading-spinner"></div>
+        <p>Loading Quality Alert #${alertId}...</p>
+    </div>
+`;
+
+// Fetch and display the quality alert
+fetchQualityAlert(alertId);
+```
+
+}
+
+// Function to close the modal
+function closeQualityAlertModal() {
+const modal = document.getElementById(‘qualityAlertModal’);
+modal.classList.remove(‘active’);
+document.body.style.overflow = ‘auto’;
+}
+
+// Function to fetch quality alert data
+async function fetchQualityAlert(alertId) {
+try {
+const response = await fetch(`/api/quality-alert/${alertId}`);
+const data = await response.json();
+
+```
+    if (response.ok) {
+        renderQualityAlertDocument(data);
+    } else {
+        throw new Error(data.error || 'Failed to load quality alert');
+    }
+} catch (error) {
+    console.error('Error fetching quality alert:', error);
+    document.getElementById('qualityAlertDocument').innerHTML = `
+        <div style="text-align: center; padding: 3rem; color: #ef4444;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h3>Error Loading Quality Alert (Log-In to get access)  </h3>
+            <p>${error.message} (Please Log-In)</p>
+            <button onclick="closeQualityAlertModal()" style="margin-top: 1rem; padding: 0.5rem 1rem; border: none; background: #3f567a; color: white; border-radius: 4px; cursor: pointer;">
+                Close
+            </button>
+        </div>
+    `;
+}
+```
+
+}
+
+// Function to render the quality alert document
+function renderQualityAlertDocument(data) {
+const container = document.getElementById(‘qualityAlertDocument’);
+
+```
+const html = `
+    <!-- Header Section -->
+    <table class="qa-header-table">
+        <tr>
+            <td style="width: 33%;"><img src="/static/BentelerB.png" style="width: 45%;" alt="Benteler Logo"></td>
+            <td style="width: 33%;"></td>
+            <td class="qa-alert-number" style="width: 33%;">Quality Alert # ${data.qaNumber}</td>
+        </tr>
+    </table>
+
+    <!-- Problem Section -->
+    <div class="qa-problem-section">
+        <h4>Problem</h4>
+    </div>
+    
+    <div style="margin: 1rem 0;">
+        <h6>${data.problemDescription}</h6>
+        <h6>This occurred during the ${data.operation} on the ${data.shift} shift</h6>
+    </div>
+
+    <table style="width: 100%; font-size: 11px;">
+        <tr>
+            <td>
+                <h5>Expiration Date: 
+                    <span style="font-weight: bold; font-size: 18px;">${data.expirationDate}</span>
+                </h5>
+            </td>
+            <td style="text-align: right;">
+                <h6><small>Clean Point #: ${data.cleanPoint}</small></h6>
+            </td>
+            <td style="text-align: right;">
+                <h6><small>Quality Authorization: ${data.qualityAuth}</small></h6>
+            </td>
+            <td style="text-align: right;">
+                <h6><small>Manufacturing Authorization: ${data.mfgAuth}</small></h6>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Instruction Section -->
+    <div class="qa-instruction-section">
+        <h4>Instruction</h4>
+    </div>
+
+    <div class="qa-details-grid">
+        <!-- Images Section -->
+        <div>
+            <div class="qa-images-container">
+                ${data.image1 ? `<img src="${data.image1}" alt="Good Example" class="qa-image qa-good-image">` : ''}
+                ${data.image2 ? `<img src="${data.image2}" alt="Bad Example" class="qa-image qa-bad-image">` : ''}
+            </div>
+        </div>
+        
+        <!-- Information Section -->
+        <div class="qa-info-section">
+            <h5><small>Issue reported by:</small></h5>
+            <div style="display: flex; gap: 1rem; margin: 0.5rem 0; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <input type="radio" ${data.reportedBy === 'Customer Complaint' ? 'checked' : ''} disabled>
+                    <label>Customer Complaint</label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <input type="radio" ${data.reportedBy === 'Discrepant Material Report' ? 'checked' : ''} disabled>
+                    <label>Discrepant Material Report</label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <input type="radio" ${data.reportedBy === 'Internal Concern' ? 'checked' : ''} disabled>
+                    <label>Internal Concern</label>
+                </div>
+            </div>
+
+            <!-- Instructions Table -->
+            <table class="qa-instructions-table">
+                <tr>
+                    <th>Instructions</th>
+                </tr>
+                ${data.instructions.map(instruction => `
+                    <tr>
+                        <td>${instruction.machine}</td>
+                        <td>${instruction.instruction}</td>
+                    </tr>
+                `).join('')}
+            </table>
+
+            <!-- Description -->
+            <table class="qa-instructions-table">
+                <tr>
+                    <th>Description</th>
+                </tr>
+                ${data.materials.map(material => `
+                    <tr>
+                        <td>${material.description}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+    </div>
+
+    <!-- Note Section -->
+    <div class="qa-note">
+        NOTE: LINE COORDINATOR SHALL PLACE A SCRAP TAG ON THE PART AND IMMEDIATELY INFORM THE SUPERVISOR AND QUALITY TECH IF THERE IS AN ISSUE.
+    </div>
+`;
+
+container.innerHTML = html;
+```
+
+}
+
+// Close modal when clicking outside or pressing Escape
+document.addEventListener(‘click’, function(e) {
+if (e.target.classList.contains(‘quality-alert-modal’)) {
+closeQualityAlertModal();
+}
+});
+
+document.addEventListener(‘keydown’, function(e) {
+if (e.key === ‘Escape’ && document.getElementById(‘qualityAlertModal’).classList.contains(‘active’)) {
+closeQualityAlertModal();
+}
+});
+
+// Add this function to your quality.html script section
+function captureQualityItem(element) {
+const itemType = element.dataset.itemType || ‘Quality Item’;
+const description = element.dataset.description || ‘Quality issue reported’;
+
+```
+let details = '';
+let severity = 'Medium';
+
+// Build details based on item type
+switch(itemType) {
+    case 'Quality Claim':
+        details = `Responsible: ${element.dataset.responsible || 'Unknown'}, Customer: ${element.dataset.customer || 'N/A'}`;
+        severity = element.dataset.severity || 'Medium';
+        break;
+        
+    case 'Key Turn':
+        details = `Key Type: ${element.dataset.keyType || 'Unknown'}, Order: ${element.dataset.orderNumber || 'N/A'}`;
+        severity = element.dataset.keyType?.toLowerCase().includes('yellow') ? 'Medium' : 'High';
+        break;
+        
+    case 'EOL Issue':
+        details = `Station: ${element.dataset.station || 'Unknown'}, Identified by: ${element.dataset.identifiedBy || 'Unknown'}`;
+        severity = 'High';
+        break;
+        
+    case 'EOL Finding':
+        const count = element.dataset.count || '1';
+        details = `ECART Numbers: ${element.dataset.ecartNumbers || 'N/A'}, Sides: ${element.dataset.sides || 'N/A'}`;
+        if (count > 1) {
+            details += `, Occurrences: ${count}`;
+            severity = parseInt(count) >= 10 ? 'High' : parseInt(count) >= 3 ? 'Medium' : 'Low';
+        }
+        break;
+        
+    case 'Scrap Report':
+        details = `Reason: ${element.dataset.reason || 'Unknown'}, Report ID: ${element.dataset.reportId || 'N/A'}`;
+        severity = 'Medium';
+        break;
+        
+    case 'Supplier Containment':
+        details = `Supplier: ${element.dataset.supplier || 'Unknown'}, Defect Rate: ${element.dataset.defectRate || '0'}%, Action: ${element.dataset.actionTaken || 'N/A'}`;
+        const defectRate = parseFloat(element.dataset.defectRate || '0');
+        severity = defectRate > 5 ? 'High' : defectRate > 2 ? 'Medium' : 'Low';
+        break;
+        
+    case 'Quality Alert':
+        details = `Alert ID: ${element.dataset.alertId || 'Unknown'}, Authorization: ${element.dataset.authorization || 'N/A'}`;
+        severity = 'High';
+        break;
+        
+    case 'MRB Part':
+        details = `Part: ${element.dataset.partNumber || 'Unknown'}, Reason: ${element.dataset.quarantineReason || 'Unknown'}, Age: ${element.dataset.age || '0'} days`;
+        const age = parseInt(element.dataset.age || '0');
+        severity = age > 14 ? 'High' : age > 7 ? 'Medium' : 'Low';
+        break;
+        
+    default:
+        details = 'Quality issue requires attention';
+        break;
+}
+
+const qualityData = {
+    type: itemType,
+    description: description,
+    details: details,
+    severity: severity,
+    department: 'Quality'
+};
+
+meetingActions.captureItem('quality_issue', qualityData);
+```
+
+}
+
+// Enhanced escapeHtml function for quality data
+function escapeHtml(text) {
+if (!text) return ‘’;
+const div = document.createElement(‘div’);
+div.textContent = text;
+return div.innerHTML;
+}
+
+// Initialize meeting actions when page loads
+document.addEventListener(‘DOMContentLoaded’, function() {
+// Initialize meeting actions if not already done
+if (typeof meetingActions === ‘undefined’) {
+window.meetingActions = new MeetingActionsManager();
+}
+
+```
+console.log('Meeting actions initialized on Quality page');
+```
+
+});
+
+// Global variable to track active tooltip
+let activeSDRTooltip = null;
+
+// Show SDR image tooltip
+function showSDRImageTooltip(event, okImage, nokImage) {
+// Remove any existing tooltip
+hideSDRImageTooltip();
+
+```
+// Create tooltip element
+const tooltip = document.createElement('div');
+tooltip.className = 'sdr-image-tooltip active';
+tooltip.id = 'sdrImageTooltip';
+
+// Build tooltip content
+let content = '<div class="sdr-image-tooltip-header"><i class="fas fa-images"></i> SDR Images</div>';
+
+if (okImage || nokImage) {
+    content += '<div class="sdr-images-grid">';
+    
+    if (okImage && okImage !== 'null' && okImage !== '') {
+        // Try all static routes for OK image
+        content += `
+            <div class="sdr-image-container">
+                <div class="sdr-image-label ok-label">
+                    <i class="fas fa-check"></i> OK
+                </div>
+                <img src="/static6/${okImage}" 
+                     alt="OK Image" 
+                     onerror="tryNextStaticRoute(this, '${okImage}', ['static1',  'static2', 'static3', 'static4', 'static5', 'static6', 'static7','static8'], 0)">
+            </div>
+        `;
+    }
+    
+    if (nokImage && nokImage !== 'null' && nokImage !== '') {
+        // Try all static routes for NOK image
+        content += `
+            <div class="sdr-image-container">
+                <div class="sdr-image-label nok-label">
+                    <i class="fas fa-times"></i> NOK
+                </div>
+                <img src="/static6/${nokImage}" 
+                     alt="NOK Image" 
+                     onerror="tryNextStaticRoute(this, '${nokImage}', ['static1',  'static2', 'static3', 'static4', 'static5', 'static6', 'static7','static8'], 0)">
+            </div>
+        `;
+    }
+    
+    content += '</div>';
+} else {
+    content += '<div class="sdr-no-images"><i class="fas fa-image-slash" style="font-size: 2rem; margin-bottom: 0.5rem;"></i><br>No images available</div>';
+}
+
+tooltip.innerHTML = content;
+
+// Position tooltip relative to the trigger element
+const triggerElement = event.currentTarget;
+const rect = triggerElement.getBoundingClientRect();
+
+// Append to body first to measure
+document.body.appendChild(tooltip);
+
+// Position the tooltip
+const tooltipRect = tooltip.getBoundingClientRect();
+let left = rect.left + (rect.width / 2);
+let top = rect.top - 10;
+
+// Adjust if tooltip would go off screen
+if (left - (tooltipRect.width / 2) < 10) {
+    left = tooltipRect.width / 2 + 10;
+}
+if (left + (tooltipRect.width / 2) > window.innerWidth - 10) {
+    left = window.innerWidth - (tooltipRect.width / 2) - 10;
+}
+if (top - tooltipRect.height < 10) {
+    // Position below instead
+    top = rect.bottom + 10;
+    tooltip.style.bottom = 'auto';
+    tooltip.style.top = top + 'px';
+    // Flip arrow
+    tooltip.style.setProperty('--arrow-position', 'top');
+} else {
+    tooltip.style.bottom = (window.innerHeight - top) + 'px';
+}
+
+tooltip.style.left = left + 'px';
+
+// Store reference
+activeSDRTooltip = tooltip;
+
+// Prevent tooltip from closing when hovering over it
+tooltip.addEventListener('mouseenter', function() {
+    clearTimeout(tooltip.hideTimeout);
+});
+
+tooltip.addEventListener('mouseleave', function() {
+    hideSDRImageTooltip();
+});
+```
+
+}
+
+// Add this helper function to try different static routes
+function tryNextStaticRoute(imgElement, filename, routes, currentIndex) {
+if (currentIndex >= routes.length) {
+// All routes failed, show error message
+imgElement.parentElement.innerHTML = ‘<div class="sdr-no-images"><i class="fas fa-image-slash"></i><br>Image not found</div>’;
+return;
+}
+
+```
+// Try the next route
+const nextRoute = routes[currentIndex];
+imgElement.onerror = function() {
+    tryNextStaticRoute(imgElement, filename, routes, currentIndex + 1);
+};
+imgElement.src = `/${nextRoute}/${filename}`;
+```
+
+}
+
+// Hide SDR image tooltip
+function hideSDRImageTooltip() {
+if (activeSDRTooltip) {
+activeSDRTooltip.classList.remove(‘active’);
+setTimeout(() => {
+if (activeSDRTooltip && activeSDRTooltip.parentNode) {
+activeSDRTooltip.parentNode.removeChild(activeSDRTooltip);
+}
+activeSDRTooltip = null;
+}, 200);
+}
+}
+
+// Clean up tooltip when clicking elsewhere
+document.addEventListener(‘click’, function(event) {
+if (activeSDRTooltip && !event.target.closest(’.sdr-image-preview’) && !event.target.closest(’.sdr-image-tooltip’)) {
+hideSDRImageTooltip();
+}
+});
+
+// ─── BMW Quality Claims — Photo Viewer ───────────────────────────────────────
+
+async function showClaimPhotos(event, claimId) {
+event.stopPropagation();
+hideSDRImageTooltip(); // close any open SDR tooltip first
+
+```
+let photos = [];
+try {
+    const resp = await fetch(`/api/photos/claim/${claimId}`);
+    photos = await resp.json();
+} catch (e) {
+    console.error('Error fetching claim photos:', e);
+}
+
+const tooltip = document.createElement('div');
+tooltip.className = 'sdr-image-tooltip active';
+tooltip.id = 'sdrImageTooltip';
+
+let content = `<div class="sdr-image-tooltip-header">
+    <i class="fas fa-images"></i> Claim #${claimId} — Photos
+</div>`;
+
+if (photos.length > 0) {
+    content += '<div class="sdr-images-grid">';
+    photos.forEach((p, i) => {
+        content += `
+            <div class="sdr-image-container">
+                <div class="sdr-image-label ok-label"
+                     style="background:linear-gradient(135deg,#495a7a,#5c6f94);">
+                    Photo ${i + 1}
+                </div>
+                <img src="${p.url}" alt="Claim photo ${i + 1}"
+                     style="width:100%;border-radius:12px;max-height:400px;object-fit:contain;">
+            </div>`;
+    });
+    content += '</div>';
+} else {
+    content += `<div class="sdr-no-images">
+        <i class="fas fa-camera" style="font-size:2rem;margin-bottom:0.5rem;"></i>
+        <br>No photos uploaded for this claim yet.
+    </div>`;
+}
+
+tooltip.innerHTML = content;
+document.body.appendChild(tooltip);
+
+// Position using the same logic as showSDRImageTooltip
+const rect = event.currentTarget.getBoundingClientRect();
+const tooltipRect = tooltip.getBoundingClientRect();
+let left = rect.left + rect.width / 2;
+if (left - tooltipRect.width / 2 < 10) left = tooltipRect.width / 2 + 10;
+if (left + tooltipRect.width / 2 > window.innerWidth - 10)
+    left = window.innerWidth - tooltipRect.width / 2 - 10;
+const top = rect.top - 10;
+if (top - tooltipRect.height < 10) {
+    tooltip.style.top = (rect.bottom + 10) + 'px';
+} else {
+    tooltip.style.bottom = (window.innerHeight - top) + 'px';
+}
+tooltip.style.left = left + 'px';
+
+activeSDRTooltip = tooltip;
+tooltip.addEventListener('mouseleave', hideSDRImageTooltip);
+```
+
+}
+
+// ─── End BMW Claims photo viewer ─────────────────────────────────────────────
+
+```
+</script>
+<script src="/static/js/pdf-report-generator.js"></script>
+<script src="/static/js/jspdf.umd.min.js"></script>
+```
+
+<script src="/static/js/html2canvas.min.js"></script>
+
+```
+<script src="/static/js/section-navigation.js"></script>
+<script src="{{ url_for('static', filename='js/meeting-actions.js') }}"></script>
+<!-- Quality Alert Modal -->
+```
+
+<div class="quality-alert-modal" id="qualityAlertModal">
+    <div class="quality-alert-content">
+        <button class="quality-alert-close" onclick="closeQualityAlertModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="quality-alert-body">
+            <div id="qualityAlertDocument" class="qa-document">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Loading quality alert...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
