@@ -1,0 +1,3073 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Management System</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/bootstrap-icons.css">   
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+
+```
+<style>
+```
+
+.supplier-logo-img::after {
+content: attr(alt);
+display: flex;
+align-items: center;
+justify-content: center;
+width: 32px;
+height: 32px;
+background: #f3f4f6;
+border-radius: 4px;
+font-size: 10px;
+color: #9ca3af;
+text-transform: uppercase;
+}
+
+```
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #495a7a 0%, #3f567a 100%);
+        min-height: auto;
+        color: #333;
+    }
+
+    .container-fluid {
+        padding: 2rem;
+    }
+
+            .badge-yellow-key {
+        background: #fff8e1;
+        color: #f57c00;
+    }
+
+    .page-header {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .page-title {
+        color: #495a7a;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .btn-custom {
+        background-color: #495a7a;
+        border-color: #495a7a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background-color: #5c6f94;
+        border-color: #5c6f94;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-custom {
+        border-color: #495a7a;
+        color: #495a7a;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-custom:hover {
+        background-color: #495a7a;
+        border-color: #495a7a;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .quality-table {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: #495a7a;
+        color: white;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .quality-type-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-bmw-claim {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .badge-key-turn {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .badge-line-quality {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .badge-containment {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-open {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .status-in-progress {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-completed {
+        background: #e8f5e8;
+        color: #2e7d32;
+    }
+
+    .status-escalated {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .severity-badge, .priority-badge, .risk-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .severity-low, .priority-low, .risk-low {
+        background: #e8f5e8;
+        color: #2e7d32;
+    }
+
+    .supplier-dropdown-container {
+position: relative;
+width: 100%;
+```
+
+}
+
+.supplier-display-btn:hover {
+border-color: #6b7280 !important;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.supplier-display-btn:focus {
+outline: none;
+border-color: #3b82f6 !important;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.supplier-dropdown-menu::-webkit-scrollbar {
+width: 6px;
+}
+
+.supplier-dropdown-menu::-webkit-scrollbar-track {
+background: #f1f1f1;
+border-radius: 3px;
+}
+
+.supplier-dropdown-menu::-webkit-scrollbar-thumb {
+background: #c1c1c1;
+border-radius: 3px;
+}
+
+.supplier-dropdown-menu::-webkit-scrollbar-thumb:hover {
+background: #a8a8a8;
+}
+
+.supplier-option:last-child {
+border-bottom: none !important;
+}
+
+/* Table supplier logo cell styling */
+.supplier-logo-cell {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.supplier-logo-img {
+width: 24px;
+height: 24px;
+border-radius: 3px;
+object-fit: cover;
+border: 1px solid #e5e7eb;
+flex-shrink: 0;
+}
+
+.supplier-logo-img-error {
+display: none;
+}
+
+/* Loading state for supplier dropdown */
+.supplier-dropdown-loading {
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 2rem;
+color: #6b7280;
+font-style: italic;
+}
+
+/* Default logo placeholder */
+.supplier-logo-placeholder {
+width: 24px;
+height: 24px;
+background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+border-radius: 3px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 10px;
+color: #9ca3af;
+font-weight: bold;
+border: 1px solid #d1d5db;
+}
+
+/* Presentation mode enhancements for supplier cells */
+.metric-card.expanded .supplier-logo-img {
+width: 32px;
+height: 32px;
+}
+
+.metric-card.expanded .supplier-logo-cell {
+gap: 0.75rem;
+}
+.severity-medium, .priority-medium, .risk-medium {
+background: #fff3e0;
+color: #f57c00;
+}
+
+```
+    .severity-high, .priority-high, .risk-high {
+        background: #ffe6e6;
+        color: #d32f2f;
+    }
+
+    .severity-critical, .priority-critical {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #495a7a 0%, #5c6f94 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border-bottom: none;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #495a7a;
+        box-shadow: 0 0 0 0.2rem rgba(73, 90, 122, 0.25);
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #495a7a;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+        margin: 2rem auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .filter-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #495a7a;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .nav-pills .nav-link {
+        background-color: #495a7a;
+        color: white;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #5c6f94;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+```
+
+.tab-content {
+position: relative;
+margin-top: 2rem;
+min-height: 20px; /* Small minimum */
+}
+.tab-pane {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+width: 100%;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.15s ease;
+}
+
+.tab-pane.active.show {
+position: relative;
+opacity: 1;
+visibility: visible;
+}
+</style>
+
+</head>
+<body>
+    {% include 'nav1.html' %} 
+
+```
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header text-center">
+        <h1 class="page-title">
+            <i class="bi bi-clipboard-check"></i>
+            Quality Management System
+        </h1>
+        <p class="page-subtitle">Manage BMW/VW Claims, Key Turns, Line Quality, and Supplier Containment</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid" id="stats-section">
+        <div class="stat-card">
+            <div class="stat-number" id="claims-stat">0</div>
+            <div class="stat-label">BMW/VW Claims</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="key-turns-stat">0</div>
+            <div class="stat-label">Key Turns (24h)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="line-quality-stat">0</div>
+            <div class="stat-label">Line Quality Issues</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="containment-stat">0</div>
+            <div class="stat-label">Active Containments</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-card">
+        <div class="row">
+            <div class="col-md-8">
+                <h4 class="mb-3">Quick Actions</h4>
+                <button class="btn btn-custom me-3" data-bs-toggle="modal" data-bs-target="#addQualityModal">
+                    <i class="bi bi-plus-circle"></i> Add Quality Record
+                </button>
+                <button class="btn btn-outline-custom me-3" onclick="refreshData()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                </button>
+                <a href="/quality" class="btn btn-outline-custom">
+                    <i class="bi bi-graph-up"></i> View Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="filter-card">
+        <ul class="nav nav-pills" id="qualityTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="claims-tab" data-bs-toggle="pill" data-bs-target="#claims-content" type="button" role="tab">
+                    <i class="bi bi-exclamation-circle"></i> BMW/VW Claims
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="key-turns-tab" data-bs-toggle="pill" data-bs-target="#key-turns-content" type="button" role="tab">
+                    <i class="bi bi-key"></i> Key Turns
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="line-quality-tab" data-bs-toggle="pill" data-bs-target="#line-quality-content" type="button" role="tab">
+                    <i class="bi bi-gear"></i> Line Quality
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="containment-tab" data-bs-toggle="pill" data-bs-target="#containment-content" type="button" role="tab">
+                    <i class="bi bi-shield-check"></i> Containment
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="scrap-selection-tab" data-bs-toggle="pill" data-bs-target="#scrap-selection-content" type="button" role="tab">
+                    <i class="bi bi-check2-square"></i> Scrap Selection
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mrb-selection-tab" data-bs-toggle="pill" data-bs-target="#mrb-selection-content" type="button" role="tab">
+                    <i class="bi bi-check2-square"></i> MRB Selection
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="text-center">
+        <div class="loading-spinner"></div>
+        <p>Loading quality data...</p>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="qualityTabContent" style="display: none;">
+        
+        <!-- BMW/VW Claims Tab -->
+        <div class="tab-pane fade show active" id="claims-content" role="tabpanel">
+            <div class="quality-table">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>BMW/VW Quality Claims</h4>
+                    <span class="badge bg-secondary" id="claims-count">0 claims</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Event</th>
+                                <th>Responsible</th>
+                                <th>Action Taken</th>
+                                <th>Severity</th>
+                                <th>Owner</th>
+                                <th style="text-align:center;">Photos</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="claims-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Turns Tab -->
+        <div class="tab-pane fade" id="key-turns-content" role="tabpanel">
+            <div class="quality-table">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Key Turn Events</h4>
+                    <span class="badge bg-secondary" id="key-turns-count">0 events</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Event Type</th>
+                                <th>Description</th>
+                                <th>Order Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="key-turns-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Quality Tab -->
+        <div class="tab-pane fade" id="line-quality-content" role="tabpanel">
+            <div class="quality-table">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Line Quality Issues</h4>
+                    <span class="badge bg-secondary" id="line-quality-count">0 issues</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Line</th>
+                                <th>Issue Description</th>
+                                <th>Identified By</th>
+                                <th>Action Taken</th>
+                                <th>Owner</th>
+                                <th>PDCA VN</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="line-quality-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplier Containment Tab -->
+```
+
+<div class="tab-pane fade" id="containment-content" role="tabpanel">
+    <div class="quality-table">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Supplier Containment Actions</h4>
+            <span class="badge bg-secondary" id="containment-count">0 actions</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date/Time</th>
+                        <th style="width: 20%;">Supplier</th> <!-- Made wider for logo -->
+                        <th>Non-Conformance</th>
+                        <th>Action Taken</th>
+                        <th>Status</th>
+                        <th>Total Inspected</th>
+                        <th>Defect Parts</th>
+                        <th>Defect Rate</th>
+                        <th>Owner</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="containment-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+        </div>
+        <div class="tab-pane fade" id="scrap-selection-content" role="tabpanel">
+    <div class="quality-table">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Select Scrap Reports to Display</h4>
+            <div>
+<button class="btn me-2" style="border: 2px solid #3951db; color: #142db9; font-size: 0.85rem;" onclick="selectAllScraps()">
+    <i class="bi bi-check-all"></i> Select All
+</button>
+<button class="btn me-2" style="border: 2px solid #dc3545; color: #dc3545; font-size: 0.85rem;" onclick="clearAllScraps()">
+    <i class="bi bi-x-square"></i> Clear All
+</button>
+
+</button>
+<button class="btn me-2" style="border: 2px solid #28a745; color: #28a745;" onclick="saveScrapSelection()">
+<i class="bi bi-check"></i> 
+<span style="font-weight: bold; font-size: 1.15rem;">Save Selection</span>
+
+</button>
+
+```
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="50px">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAllCheckbox" onchange="toggleAllScraps(this)">
+                        </div>
+                    </th>
+                    <th>Date/Time</th>
+                    <th>Comment</th>
+                    <th>Additional Comment</th>  <!-- CHANGE THIS: was "Why" -->
+                </tr>
+            </thead>
+            <tbody id="scrap-selection-tbody">
+            </tbody>
+        </table>
+    </div>
+</div>
+```
+
+</div>
+
+<!-- MRB Parts Selection Tab -->
+
+<div class="tab-pane fade" id="mrb-selection-content" role="tabpanel">
+    <div class="quality-table">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Select MRB Parts to Display</h4>
+            <div>
+                <button class="btn me-2" style="border: 2px solid #3951db; color: #142db9; font-size: 0.85rem;" onclick="selectAllMRB()">
+                    <i class="bi bi-check-all"></i> Select All
+                </button>
+                <button class="btn me-2" style="border: 2px solid #dc3545; color: #dc3545; font-size: 0.85rem;" onclick="clearAllMRB()">
+                    <i class="bi bi-x-square"></i> Clear All
+                </button>
+                <button class="btn me-2" style="border: 2px solid #28a745; color: #28a745;" onclick="saveMRBSelection()">
+                    <i class="bi bi-check"></i> 
+                    <span style="font-weight: bold; font-size: 1.15rem;">Save Selection</span>
+                </button>
+            </div>
+        </div>
+        <!-- Add this right after the "Save Selection" button div and before the table -->
+<div class="mb-3">
+    <label for="mrbGeneralNote" class="form-label">
+        <strong>General Note (standalone, not attached to specific parts)</strong>
+    </label>
+    <textarea class="form-control" id="mrbGeneralNote" rows="3" 
+              placeholder="Enter general notes about MRB items (saved separately from individual part notes)..."></textarea>
+    <small class="text-muted">This note is saved independently and won't be attached to any specific part</small>
+</div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th width="50px">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAllMRBCheckbox" onchange="toggleAllMRB(this)">
+                            </div>
+                        </th>
+                        <th>Part Number</th>
+                        <th>Part Description</th>
+                        <th>Quantity</th>
+                        <th>Defect Reason</th>
+                        <th>Age (Days)</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="mrb-selection-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+```
+</div>
+
+
+
+<!-- Add/Edit Quality Modal -->
+<div class="modal fade" id="addQualityModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">
+                    <i class="bi bi-plus-circle"></i> Add Quality Record
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="qualityForm">
+                    <input type="hidden" id="recordId">
+                    <input type="hidden" id="recordType">
+                    
+                    <!-- Record Type Selection -->
+                    <div class="mb-3">
+                        <label for="qualityType" class="form-label">Quality Record Type *</label>
+                        <select class="form-select" id="qualityType" required onchange="toggleFormFields()">
+                            <option value="">Select type...</option>
+                            <option value="bmw_claim">BMW/VW Quality Claim</option>
+                            <option value="key_turn">Key Turn Event</option>
+                            <option value="line_quality">Line Quality Issue</option>
+                            <option value="containment">Supplier Containment</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="recordDate" class="form-label">Date & Time *</label>
+                                <input type="datetime-local" class="form-control" id="recordDate" required>
+                            </div>
+                        </div>
+```
+
+<!-- BMW Claims Fields -->
+
+```
+                                <div id="bmwClaimFields" style="display: none;">
+                                    <div class="row">
+                                        <!-- ADD THIS NEW FIELD -->
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                <label for="event" class="form-label">Event Description *</label>
+                                                <textarea class="form-control" id="event" rows="2" 
+                                                        placeholder="Describe the quality claim event" required></textarea>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="responsible" class="form-label">Responsible</label>
+                                                <input type="text" class="form-control" id="responsible" placeholder="Who is responsible">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="actionTaken" class="form-label">Action Taken</label>
+                                                <input type="text" class="form-control" id="actionTaken" placeholder="If left blank, it will consider the status to be open.">
+                                            </div>
+                                        </div>
+                                    </div>
+                       <div class="row">
+<div class="col-md-6">
+    <div class="mb-3">
+        <label for="severityBI" class="form-label">Severity (BI)</label>
+        <select class="form-select" id="severityBI">
+            <option value="10">10 – Outstanding: Surprises in a positive way | Excellent manufacturability</option>
+            <option value="9">9 – Excellent: Technical solution is convincing | Excellent manufacturability</option>
+            <option value="8">8 – Very good: Expectations fulfilled 100% | Purposeful concept</option>
+            <option value="7">7 – Good: Minimal deviations, occasional irritation | Launch endangering</option>
+            <option value="6">6 – Acceptable: Expectations not fully achieved | Launch endangering</option>
+            <option value="5">5 – Non-acceptable: Dissatisfaction, fixed at next service | Launch preventing</option>
+            <option value="4">4 – Faulty: Unplanned service visit | Launch preventing</option>
+            <option value="3">3 – Uncertainty/Irritation: Immediate service visit | Launch preventing</option>
+            <option value="2">2 – Severe irritation: Legal action/publication | Not producible</option>
+            <option value="1">1 – Safety defects: Registration/safety risk | Advance and safety</option>
+            <option value="N/A">N/A – N/A </option>
+
+        </select>
+    </div>
+</div>
+
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="owner" class="form-label">Owner</label>
+                                    <input type="text" class="form-control" id="owner" placeholder="Record owner">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload — only shown when BMW/VW Quality Claim is selected -->
+                    <div class="row mt-1" id="claimPhotoSection" style="display:none;">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-camera"></i> Attach Photos
+                                    <small class="text-muted ms-2">(PNG, JPG, JPEG, GIF — max 16 MB each)</small>
+                                </label>
+                                <div id="claimPhotoDropZone"
+                                     style="border:2px dashed #495a7a; border-radius:10px; padding:1.25rem;
+                                            text-align:center; cursor:pointer; background:#f8f9ff;
+                                            transition:background 0.2s;"
+                                     onclick="document.getElementById('claimPhotoFileInput').click()"
+                                     ondragover="event.preventDefault(); this.style.background='#e8eeff';"
+                                     ondragleave="this.style.background='#f8f9ff';"
+                                     ondrop="handleClaimPhotoDrop(event)">
+                                    <i class="bi bi-cloud-upload" style="font-size:1.8rem; color:#495a7a;"></i>
+                                    <div class="mt-1 text-muted" style="font-size:0.9rem;">
+                                        Click or drag &amp; drop photos here
+                                    </div>
+                                </div>
+                                <input type="file" id="claimPhotoFileInput" accept="image/*" multiple
+                                       style="display:none" onchange="handleClaimPhotoSelect(event)">
+                                <div id="claimPhotoPreviewGrid"
+                                     style="margin-top:0.75rem; display:flex; flex-wrap:wrap; gap:0.6rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Turn Fields -->
+```
+
+<div id="keyTurnFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="keyType" class="form-label">Key Type *</label>
+                                        <select class="form-select" id="keyType" required>
+                                            <option value="">Select key type...</option>
+                                            <option value="Blue Key">Blue Key</option>
+                                            <option value="Yellow Key">Yellow Key</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="orderNumber" class="form-label">Order Number</label>
+                                        <input type="text" class="form-control" id="orderNumber" placeholder="Related order number">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description *</label>
+                                <textarea class="form-control" id="description" rows="3" placeholder="Detailed description of the key turn event" required></textarea>
+                            </div>
+                        </div>
+
+```
+                    <!-- Line Quality Fields -->
+                    <div id="lineQualityFields" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="line" class="form-label">Line Number</label>
+                                    <input type="number" class="form-control" id="line" placeholder="Line number">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="identifiedBy" class="form-label">Identified By</label>
+                                    <input type="text" class="form-control" id="identifiedBy" placeholder="Who identified the issue">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="pdcaYN" class="form-label">PDCA YN</label>
+                                    <input type="text" class="form-control" id="pdcaYN" placeholder="PDCA VN reference">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descriptionOfIssue" class="form-label">Issue Description</label>
+                            <textarea class="form-control" id="descriptionOfIssue" rows="3" placeholder="Detailed issue description"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="actionTakenLine" class="form-label">Action Taken</label>
+                            <textarea class="form-control" id="actionTakenLine" rows="2" placeholder="What corrective action was taken"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Containment Fields -->
+```
+
+<div id="containmentFields" style="display: none;">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="supplier-container" class="form-label">Supplier Name</label>
+                <div id="supplier-container" class="supplier-dropdown-container">
+                    <!-- Enhanced supplier dropdown will be inserted here -->
+                    <input type="text" class="form-control" id="supplier" placeholder="Loading suppliers...">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="nonConformance" class="form-label">Non-Conformance</label>
+                <input type="text" class="form-control" id="nonConformance" placeholder="Non-conformance description">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="totalPartsInspected" class="form-label">Total Parts Inspected</label>
+                <input type="number" class="form-control" id="totalPartsInspected" placeholder="0">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="totalDefectParts" class="form-label">Total Defect Parts</label>
+                <input type="number" class="form-control" id="totalDefectParts" placeholder="0">
+            </div>
+        </div>
+<div class="col-md-4">
+    <div class="mb-3">
+        <label for="defectRate" class="form-label">Defect Rate (%)</label>
+        <input type="number" step="0.01" class="form-control" id="defectRate" placeholder="0.00" readonly>
+    </div>
+</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="actionTakenContainment" class="form-label">Action Taken</label>
+                <textarea class="form-control" id="actionTakenContainment" rows="2" placeholder="What corrective action was taken"></textarea>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="statusUpdate" class="form-label">Status Update</label>
+                <textarea class="form-control" id="statusUpdate" rows="2" placeholder="Current status update"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="ownerContainment" class="form-label">Owner</label>
+        <input type="text" class="form-control" id="ownerContainment" placeholder="Record owner">
+    </div>
+</div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-custom" onclick="saveQualityRecord()">
+                        <i class="bi bi-check-circle"></i> Save Record
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+```
+<script src="../static/js/bootstrap.bundle.min.js"></script>
+<script>
+```
+
+function calculateDefectRate() {
+const totalParts = parseInt(document.getElementById(‘totalPartsInspected’).value) || 0;
+const defectParts = parseInt(document.getElementById(‘totalDefectParts’).value) || 0;
+const defectRateField = document.getElementById(‘defectRate’);
+
+```
+if (totalParts === 0) {
+    defectRateField.value = '0.00';
+    return;
+}
+
+const defectRate = (defectParts / totalParts) * 100;
+defectRateField.value = defectRate.toFixed(2);
+```
+
+}
+
+let allQualityData = {
+claims: [],
+keyTurns: [],
+lineQuality: [],
+containment: []
+};
+let isEditMode = false;
+let currentRecordType = ‘’;
+
+// Load data when page loads
+document.addEventListener(‘DOMContentLoaded’, function() {
+console.log(‘Page loaded, starting data load…’);
+loadAllQualityData();
+});
+
+// Set current date/time when modal opens
+document.getElementById(‘addQualityModal’).addEventListener(‘show.bs.modal’, function () {
+if (!isEditMode) {
+const now = new Date();
+const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+document.getElementById(‘recordDate’).value = localDateTime;
+}
+});
+
+// Reset form when modal closes
+document.getElementById(‘addQualityModal’).addEventListener(‘hidden.bs.modal’, function () {
+resetForm();
+});
+
+function toggleFormFields() {
+const qualityType = document.getElementById(‘qualityType’).value;
+console.log(‘Toggling form fields for type:’, qualityType);
+
+```
+// Hide all field groups and remove required attributes from hidden fields
+document.getElementById('bmwClaimFields').style.display = 'none';
+document.getElementById('keyTurnFields').style.display = 'none';
+document.getElementById('lineQualityFields').style.display = 'none';
+document.getElementById('containmentFields').style.display = 'none';
+document.getElementById('claimPhotoSection').style.display = 'none';
+
+// Remove required attributes from all conditional fields
+document.getElementById('event').removeAttribute('required');
+document.getElementById('keyType').removeAttribute('required');
+document.getElementById('description').removeAttribute('required');
+
+// Show relevant fields based on type and set required attributes
+switch(qualityType) {
+    case 'bmw_claim':
+        document.getElementById('bmwClaimFields').style.display = 'block';
+        document.getElementById('claimPhotoSection').style.display = 'block';
+        document.getElementById('event').setAttribute('required', 'required'); // ADD THIS
+        break;
+        
+    case 'key_turn':
+        document.getElementById('keyTurnFields').style.display = 'block';
+        document.getElementById('keyType').setAttribute('required', 'required');
+        document.getElementById('description').setAttribute('required', 'required');
+        break;
+        
+    case 'line_quality':
+        document.getElementById('lineQualityFields').style.display = 'block';
+        break;
+        
+    case 'containment':
+        document.getElementById('containmentFields').style.display = 'block';
+        
+        // Handle supplier dropdown creation with proper async loading
+        const supplierContainer = document.getElementById('supplier-container');
+        if (supplierContainer) {
+            // Show loading state immediately
+            supplierContainer.innerHTML = `
+                <input type="text" class="form-control" id="supplier" 
+                       placeholder="Loading suppliers..." readonly>
+            `;
+            
+            // Load suppliers and create dropdown
+            if (suppliersWithLogos.length === 0) {
+                loadSuppliersWithLogos().then(() => {
+                    if (suppliersWithLogos.length > 0) {
+                        createSupplierDropdown('supplier-container');
+                    } else {
+                        // Fallback to regular input if loading fails
+                        supplierContainer.innerHTML = `
+                            <input type="text" class="form-control" id="supplier" 
+                                   placeholder="Enter supplier name...">
+                        `;
+                    }
+                }).catch(error => {
+                    console.error('Failed to load suppliers:', error);
+                    // Fallback to regular input on error
+                    supplierContainer.innerHTML = `
+                        <input type="text" class="form-control" id="supplier" 
+                               placeholder="Enter supplier name...">
+                    `;
+                });
+            } else {
+                // Suppliers already loaded
+                createSupplierDropdown('supplier-container');
+            }
+        }
+            setTimeout(() => {
+    document.getElementById('totalPartsInspected').addEventListener('input', calculateDefectRate);
+    document.getElementById('totalDefectParts').addEventListener('input', calculateDefectRate);
+}, 100);
+        break;
+}
+```
+
+}
+
+async function loadAllQualityData() {
+try {
+console.log(‘Starting to load all quality data…’);
+document.getElementById(‘loading’).style.display = ‘block’;
+document.getElementById(‘qualityTabContent’).style.display = ‘none’;
+
+```
+    // Load all quality data types with better error handling
+    const loadPromises = [
+        loadBMWClaims().catch(err => {
+            console.error('Failed to load BMW claims:', err);
+            allQualityData.claims = [];
+        }),
+        loadKeyTurns().catch(err => {
+            console.error('Failed to load key turns:', err);
+            allQualityData.keyTurns = [];
+        }),
+        loadLineQuality().catch(err => {
+            console.error('Failed to load line quality:', err);
+            allQualityData.lineQuality = [];
+        }),
+        loadSupplierContainment().catch(err => {
+            console.error('Failed to load supplier containment:', err);
+            allQualityData.containment = [];
+        })
+    ];
+
+    await Promise.allSettled(loadPromises);
+
+    // Update stats
+    updateStats();
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('qualityTabContent').style.display = 'block';
+    
+    console.log('All quality data loaded successfully');
+
+} catch (error) {
+    console.error('Error loading quality data:', error);
+    document.getElementById('loading').innerHTML = `
+        <div class="alert alert-danger">
+            <h5>Error Loading Data</h5>
+            <p>${error.message}</p>
+            <button class="btn btn-primary" onclick="loadAllQualityData()">Retry</button>
+        </div>
+    `;
+}
+```
+
+}
+
+async function loadBMWClaims() {
+try {
+console.log(‘Loading BMW claims…’);
+const response = await fetch(’/api/quality/claims’);
+
+```
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allQualityData.claims = Array.isArray(data) ? data : [];
+    displayBMWClaims(allQualityData.claims);
+    console.log('BMW claims loaded:', allQualityData.claims.length);
+} catch (error) {
+    console.error('Error loading BMW claims:', error);
+    allQualityData.claims = [];
+    displayBMWClaims([]);
+    showAlert(`Error loading BMW claims: ${error.message}`, 'warning');
+}
+```
+
+}
+
+async function loadKeyTurns() {
+try {
+console.log(‘Loading key turns…’);
+const response = await fetch(’/api/quality/key-turns’);
+
+```
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allQualityData.keyTurns = Array.isArray(data) ? data : [];
+    displayKeyTurns(allQualityData.keyTurns);
+    console.log('Key turns loaded:', allQualityData.keyTurns.length);
+} catch (error) {
+    console.error('Error loading key turns:', error);
+    allQualityData.keyTurns = [];
+    displayKeyTurns([]);
+    showAlert(`Error loading key turns: ${error.message}`, 'warning');
+}
+```
+
+}
+
+async function loadLineQuality() {
+try {
+console.log(‘Loading line quality…’);
+const response = await fetch(’/api/quality/alerts’);
+
+```
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allQualityData.lineQuality = Array.isArray(data) ? data : [];
+    displayLineQuality(allQualityData.lineQuality);
+    console.log('Line quality loaded:', allQualityData.lineQuality.length);
+} catch (error) {
+    console.error('Error loading line quality:', error);
+    allQualityData.lineQuality = [];
+    displayLineQuality([]);
+    showAlert(`Error loading line quality: ${error.message}`, 'warning');
+}
+```
+
+}
+
+async function loadSupplierContainment() {
+try {
+console.log(‘Loading supplier containment…’);
+const response = await fetch(’/api/quality/supplier-containment’);
+
+```
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allQualityData.containment = Array.isArray(data) ? data : [];
+    displaySupplierContainment(allQualityData.containment);
+    console.log('Supplier containment loaded:', allQualityData.containment.length);
+} catch (error) {
+    console.error('Error loading supplier containment:', error);
+    allQualityData.containment = [];
+    displaySupplierContainment([]);
+    showAlert(`Error loading supplier containment: ${error.message}`, 'warning');
+}
+```
+
+}
+
+function updateStats() {
+try {
+document.getElementById(‘claims-stat’).textContent = allQualityData.claims.length;
+document.getElementById(‘key-turns-stat’).textContent = allQualityData.keyTurns.length;
+document.getElementById(‘line-quality-stat’).textContent = allQualityData.lineQuality.length;
+document.getElementById(‘containment-stat’).textContent = allQualityData.containment.length;
+console.log(‘Stats updated successfully’);
+} catch (error) {
+console.error(‘Error updating stats:’, error);
+}
+}
+
+function displayBMWClaims(claims) {
+const tbody = document.getElementById(‘claims-tbody’);
+if (!tbody) {
+console.error(‘Claims tbody not found’);
+return;
+}
+
+```
+tbody.innerHTML = '';
+document.getElementById('claims-count').textContent = `${claims.length} claim${claims.length !== 1 ? 's' : ''}`;
+
+claims.forEach(claim => {
+    const row = tbody.insertRow();
+    
+    let dateStr = 'N/A';
+    if (claim.reportedDate || claim.dateTime) {
+        try {
+            const date = new Date(claim.reportedDate || claim.dateTime);
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString();
+            }
+        } catch (e) {
+            dateStr = claim.reportedDate || claim.dateTime || 'N/A';
+        }
+    }
+
+    const severityBadge = getSeverityBadge(claim.severityBI || claim.severity || 'B');
+
+    const photoCell = `<div class="sdr-image-preview" style="justify-content:center;">
+        <span class="sdr-image-icon"
+              onclick="event.stopPropagation(); showClaimPhotosManagement(event, '${claim.claimID}')">
+            <i class="bi bi-images"></i> View
+        </span>
+    </div>`;
+
+    row.innerHTML = `
+        <td>${dateStr}</td>
+        <td>${claim.event || 'N/A'}</td>
+        <td>${claim.responsible || 'N/A'}</td>
+        <td>${claim.actionTaken || 'N/A'}</td>
+        <td>${severityBadge}</td>
+        <td>${claim.owner || 'N/A'}</td>
+        <td style="text-align:center;">${photoCell}</td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editRecord('claims', '${claim.claimID || ''}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('claims', '${claim.claimID || ''}')" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+});
+
+if (claims.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No claims found</td></tr>';
+}
+```
+
+}
+
+function displayKeyTurns(keyTurns) {
+const tbody = document.getElementById(‘key-turns-tbody’);
+if (!tbody) {
+console.error(‘Key turns tbody not found’);
+return;
+}
+
+```
+tbody.innerHTML = '';
+document.getElementById('key-turns-count').textContent = `${keyTurns.length} event${keyTurns.length !== 1 ? 's' : ''}`;
+```
+
+keyTurns.forEach(keyTurn => {
+const row = tbody.insertRow();
+
+```
+    let dateStr = 'N/A';
+    if (keyTurn.timestamp || keyTurn.dateTime) {
+        try {
+            const date = new Date(keyTurn.timestamp || keyTurn.dateTime);
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString();
+            }
+        } catch (e) {
+            dateStr = keyTurn.timestamp || keyTurn.dateTime || 'N/A';
+        }
+    }
+
+    // Determine key type and apply appropriate styling
+    const keyType = keyTurn.keyType || keyTurn.event || 'N/A';
+    let keyBadgeClass = 'badge-blue-key'; // default
+    
+    if (keyType.toLowerCase().includes('yellow')) {
+        keyBadgeClass = 'badge-yellow-key';
+    } else if (keyType.toLowerCase().includes('blue')) {
+        keyBadgeClass = 'badge-blue-key';
+    }
+
+    row.innerHTML = `
+        <td>${dateStr}</td>
+        <td><span class="quality-type-badge badge-key-turn">${keyTurn.keyType || keyTurn.event || 'N/A'}</span></td>
+        <td>${keyTurn.description || 'N/A'}</td>
+        <td>${keyTurn.partNumber || keyTurn.orderNumber || 'N/A'}</td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editRecord('keyTurns', '${keyTurn.keyTurnID || ''}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('keyTurns', '${keyTurn.keyTurnID || ''}')" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+});
+
+if (keyTurns.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No key turn events found</td></tr>';
+}
+```
+
+}
+
+function displayLineQuality(issues) {
+const tbody = document.getElementById(‘line-quality-tbody’);
+if (!tbody) {
+console.error(‘Line quality tbody not found’);
+return;
+}
+
+```
+tbody.innerHTML = '';
+document.getElementById('line-quality-count').textContent = `${issues.length} issue${issues.length !== 1 ? 's' : ''}`;
+
+issues.forEach(issue => {
+    const row = tbody.insertRow();
+    
+    let dateStr = 'N/A';
+    if (issue.createdDate || issue.dateTime) {
+        try {
+            const date = new Date(issue.createdDate || issue.dateTime);
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString();
+            }
+        } catch (e) {
+            dateStr = issue.createdDate || issue.dateTime || 'N/A';
+        }
+    }
+
+    row.innerHTML = `
+        <td>${dateStr}</td>
+        <td>${issue.station || issue.line || 'N/A'}</td>
+        <td>${issue.description || issue.descriptionOfIssue || 'N/A'}</td>
+        <td>${issue.identifiedBy || 'N/A'}</td>
+        <td>${issue.actionTaken || 'N/A'}</td>
+        <td>${issue.assignedTo || issue.owner || 'N/A'}</td>
+        <td>${issue.severity || issue.pdcaYN || 'N/A'}</td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editRecord('lineQuality', '${issue.lineQualityID || ''}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('lineQuality', '${issue.lineQualityID || ''}')" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+});
+
+if (issues.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No line quality issues found</td></tr>';
+}
+```
+
+}
+
+function displaySupplierContainment(containments) {
+const tbody = document.getElementById(‘containment-tbody’);
+if (!tbody) {
+console.error(‘Containment tbody not found’);
+return;
+}
+
+```
+tbody.innerHTML = '';
+document.getElementById('containment-count').textContent = `${containments.length} action${containments.length !== 1 ? 's' : ''}`;
+
+containments.forEach(containment => {
+    const row = tbody.insertRow();
+    
+    let dateStr = 'N/A';
+    if (containment.createdDate) {
+        try {
+            const date = new Date(containment.createdDate);
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString();
+            }
+        } catch (e) {
+            dateStr = containment.createdDate;
+        }
+    }
+
+    const riskBadge = getRiskBadge(containment.riskLevel || 'Medium');
+
+    row.innerHTML = `
+        <td>${dateStr}</td>
+        <td>${containment.supplierName || containment.supplier || 'N/A'}</td>
+        <td>${containment.issueDescription || containment.nonConformance || 'N/A'}</td>
+        <td>${containment.actionTaken || 'N/A'}</td>
+        <td>${containment.statusUpdate || 'N/A'}</td>
+        <td>${(containment.totalPartsInspected || 0).toLocaleString()}</td>
+        <td>${(containment.totalDefectParts || 0).toLocaleString()}</td>
+        <td>${(containment.defectRate || 0).toFixed(2)}%</td>
+        <td>${containment.assignedTo || containment.owner || 'N/A'}</td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editRecord('containment', '${containment.containmentID || ''}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('containment', '${containment.containmentID || ''}')" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+});
+
+if (containments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No containment actions found</td></tr>';
+}
+```
+
+}
+
+function getSeverityBadge(severity) {
+const classes = {
+‘A’: ‘severity-critical’,
+‘B’: ‘severity-high’,
+‘C’: ‘severity-medium’,
+‘D’: ‘severity-low’,
+‘Critical’: ‘severity-critical’,
+‘High’: ‘severity-high’,
+‘Medium’: ‘severity-medium’,
+‘Low’: ‘severity-low’
+};
+const labels = {
+‘A’: ‘Critical’,
+‘B’: ‘High’,
+‘C’: ‘Medium’,
+‘D’: ‘Low’
+};
+const displayText = labels[severity] || severity || ‘Medium’;
+return `<span class="severity-badge ${classes[severity] || 'severity-medium'}">${displayText}</span>`;
+}
+
+function getStatusBadge(status) {
+const classes = {
+‘New’: ‘status-open’,
+‘Open’: ‘status-open’,
+‘In Progress’: ‘status-in-progress’,
+‘Completed’: ‘status-completed’,
+‘Escalated’: ‘status-escalated’,
+‘Overdue’: ‘status-escalated’
+};
+return `<span class="status-badge ${classes[status] || 'status-open'}">${status}</span>`;
+}
+
+function getRiskBadge(risk) {
+const classes = {
+‘Low’: ‘risk-low’,
+‘Medium’: ‘risk-medium’,
+‘High’: ‘risk-high’
+};
+return `<span class="risk-badge ${classes[risk] || 'risk-medium'}">${risk}</span>`;
+}
+
+async function saveQualityRecord() {
+try {
+const form = document.getElementById(‘qualityForm’);
+if (!form.checkValidity()) {
+form.reportValidity();
+return;
+}
+
+```
+    const qualityType = document.getElementById('qualityType').value;
+    if (!qualityType) {
+        showAlert('Please select a quality record type', 'warning');
+        return;
+    }
+
+    // Prepare data based on record type
+    const recordData = prepareRecordData(qualityType);
+    
+    if (!recordData) {
+        showAlert('Error preparing record data', 'danger');
+        return;
+    }
+
+    // Determine API endpoint and method
+    let endpoint = '';
+    let method = 'POST';
+    
+    const recordId = document.getElementById('recordId').value;
+    
+    switch(qualityType) {
+        case 'bmw_claim':
+            endpoint = recordId ? `/api/quality/bmw-claims/${recordId}` : '/api/quality/bmw-claims';
+            method = recordId ? 'PUT' : 'POST';
+            break;
+        case 'key_turn':
+            endpoint = recordId ? `/api/quality/key-turns/${recordId}` : '/api/quality/key-turns';
+            method = recordId ? 'PUT' : 'POST';
+            break;
+        case 'line_quality':
+            endpoint = recordId ? `/api/quality/line-quality/${recordId}` : '/api/quality/line-quality';
+            method = recordId ? 'PUT' : 'POST';
+            break;
+        case 'containment':
+            endpoint = recordId ? `/api/quality/supplier-containment/${recordId}` : '/api/quality/supplier-containment';
+            method = recordId ? 'PUT' : 'POST';
+            break;
+        default:
+            showAlert('Invalid quality record type', 'danger');
+            return;
+    }
+
+    console.log(`Saving ${qualityType} record to ${endpoint} with method ${method}`);
+
+    // Make API call
+    const response = await fetch(endpoint, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recordData)
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+        // Upload staged photos if this was a BMW claim
+        if (qualityType === 'bmw_claim' && result.claimID) {
+            await uploadClaimPhotos(result.claimID);
+        }
+
+        showAlert(result.message || 'Record saved successfully', 'success');
+        
+        const modalElement = document.getElementById('addQualityModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        
+        if (modal) {
+            modal.hide();
+        }
+        
+        setTimeout(() => {
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => backdrop.remove());
+            
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            
+            resetForm();
+            loadAllQualityData();
+        }, 300);
+        
+    } else {
+        throw new Error(result.error || 'Failed to save record');
+    }
+
+} catch (error) {
+    console.error('Error saving quality record:', error);
+    showAlert('Error saving quality record: ' + error.message, 'danger');
+}
+```
+
+}
+
+function prepareRecordData(qualityType) {
+try {
+const baseData = {
+dateTime: document.getElementById(‘recordDate’).value
+};
+
+```
+    switch(qualityType) {
+        case 'bmw_claim':
+            return {
+                ...baseData,
+                event: document.getElementById('event').value, // CHANGED: Now reads from input
+                responsible: document.getElementById('responsible').value,
+                actionTaken: document.getElementById('actionTaken').value,
+                severityBI: document.getElementById('severityBI').value,
+                owner: document.getElementById('owner').value
+            };
+            
+        case 'key_turn':
+            return {
+                ...baseData,
+                event: document.getElementById('keyType').value,
+                description: document.getElementById('description').value,
+                orderNumber: document.getElementById('orderNumber').value
+            };
+            
+        case 'line_quality':
+            return {
+                ...baseData,
+                line: parseInt(document.getElementById('line').value) || 1,
+                descriptionOfIssue: document.getElementById('descriptionOfIssue').value,
+                identifiedBy: document.getElementById('identifiedBy').value,
+                actionTaken: document.getElementById('actionTakenLine').value,
+                owner: document.getElementById('owner').value,
+                pdcaYN: document.getElementById('pdcaYN').value
+            };
+            
+        case 'containment':
+            // FIXED: Get supplier value properly from enhanced dropdown
+            let supplierValue = '';
+            const supplierInput = document.getElementById('supplier');
+            const supplierContainer = document.getElementById('supplier-container');
+            
+            if (supplierInput) {
+                supplierValue = supplierInput.value || '';
+            } else if (supplierContainer) {
+                // If using enhanced dropdown, get the hidden input value
+                const hiddenInput = supplierContainer.querySelector('input[name="supplier"]');
+                if (hiddenInput) {
+                    supplierValue = hiddenInput.value || '';
+                }
+            }
+            
+        return {
+```
+
+supplier: supplierValue,
+nonConformance: document.getElementById(‘nonConformance’).value,
+actionTaken: document.getElementById(‘actionTakenContainment’).value, // Changed ID
+statusUpdate: document.getElementById(‘statusUpdate’).value,
+owner: document.getElementById(‘ownerContainment’).value, // Changed ID
+totalPartsInspected: parseInt(document.getElementById(‘totalPartsInspected’).value) || 0,
+totalDefectParts: parseInt(document.getElementById(‘totalDefectParts’).value) || 0,
+defectRate: parseFloat(document.getElementById(‘defectRate’).value) || 0.0
+};
+
+```
+        default:
+            return null;
+    }
+} catch (error) {
+    console.error('Error preparing record data:', error);
+    return null;
+}
+```
+
+}
+
+async function editRecord(type, id) {
+try {
+console.log(`Editing ${type} record ${id}`);
+
+```
+    const typeMapping = {
+        'claims': {
+            endpoint: `/api/quality/bmw-claims/${id}`,
+            qualityType: 'bmw_claim',
+            title: 'Edit BMW/VW Claim'
+        },
+        'keyTurns': {
+            endpoint: `/api/quality/key-turns/${id}`,
+            qualityType: 'key_turn',
+            title: 'Edit Key Turn Event'
+        },
+        'lineQuality': {
+            endpoint: `/api/quality/line-quality/${id}`,
+            qualityType: 'line_quality',
+            title: 'Edit Line Quality Issue'
+        },
+        'containment': {
+            endpoint: `/api/quality/supplier-containment/${id}`,
+            qualityType: 'containment',
+            title: 'Edit Supplier Containment'
+        }
+    };
+
+    const mapping = typeMapping[type];
+    if (!mapping) {
+        showAlert('Unknown record type', 'danger');
+        return;
+    }
+
+    const response = await fetch(mapping.endpoint);
+    
+    if (!response.ok) {
+        throw new Error(`Failed to fetch record: ${response.statusText}`);
+    }
+    
+    const recordData = await response.json();
+    
+    isEditMode = true;
+    document.getElementById('modalTitle').innerHTML = `<i class="bi bi-pencil"></i> ${mapping.title}`;
+    document.getElementById('recordId').value = id;
+    document.getElementById('recordType').value = type;
+    
+    document.getElementById('qualityType').value = mapping.qualityType;
+    toggleFormFields();
+    
+    // Handle date field properly for different record types
+    let dateValue = null;
+    
+    if (type === 'containment') {
+        // For containment, try multiple possible date fields
+        dateValue = recordData.createdDate || recordData.dateTime || recordData.date;
+    } else {
+        // For other types, use dateTime
+        dateValue = recordData.dateTime;
+    }
+    
+    if (dateValue) {
+        try {
+            const date = new Date(dateValue);
+            if (!isNaN(date.getTime())) {
+                const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                document.getElementById('recordDate').value = localDateTime;
+            } else {
+                // If date is invalid, set to current date/time
+                const now = new Date();
+                const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                document.getElementById('recordDate').value = localDateTime;
+            }
+        } catch (e) {
+            // If date parsing fails, set to current date/time
+            const now = new Date();
+            const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            document.getElementById('recordDate').value = localDateTime;
+        }
+    } else {
+        // If no date available, set to current date/time
+        const now = new Date();
+        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('recordDate').value = localDateTime;
+    }
+    
+    populateEditForm(mapping.qualityType, recordData);
+    
+    const modal = new bootstrap.Modal(document.getElementById('addQualityModal'));
+    modal.show();
+    
+} catch (error) {
+    console.error('Error editing record:', error);
+    showAlert('Error loading record for editing: ' + error.message, 'danger');
+}
+```
+
+}
+
+function populateEditForm(qualityType, recordData) {
+switch(qualityType) {
+case ‘bmw_claim’:
+document.getElementById(‘event’).value = recordData.event || ‘’; // ADD THIS
+document.getElementById(‘responsible’).value = recordData.responsible || ‘’;
+document.getElementById(‘actionTaken’).value = recordData.actionTaken || ‘’;
+document.getElementById(‘severityBI’).value = recordData.severityBI || ‘B’;
+document.getElementById(‘owner’).value = recordData.owner || ‘’;
+break;
+
+```
+    case 'key_turn':
+        document.getElementById('keyType').value = recordData.event || 'Blue Key'; // Map event to keyType
+        document.getElementById('description').value = recordData.description || '';
+        document.getElementById('orderNumber').value = recordData.orderNumber || '';
+        break;
+        
+    case 'line_quality':
+        document.getElementById('line').value = recordData.line || 1;
+        document.getElementById('descriptionOfIssue').value = recordData.descriptionOfIssue || '';
+        document.getElementById('identifiedBy').value = recordData.identifiedBy || '';
+        document.getElementById('actionTakenLine').value = recordData.actionTaken || '';
+        document.getElementById('owner').value = recordData.owner || '';
+        document.getElementById('pdcaYN').value = recordData.pdcaYN || '';
+        break;
+        
+    case 'containment':
+        // FIXED: Handle supplier field properly for enhanced dropdown
+        const supplierContainer = document.getElementById('supplier-container');
+        if (supplierContainer) {
+            // If enhanced dropdown exists, recreate it with the selected value
+            createSupplierDropdown('supplier-container', recordData.supplier || '');
+        } else {
+            // Fallback to regular input if enhanced dropdown not available
+            const supplierInput = document.getElementById('supplier');
+            if (supplierInput) {
+                supplierInput.value = recordData.supplier || '';
+            }
+        }
+        
+        document.getElementById('nonConformance').value = recordData.nonConformance || '';
+document.getElementById('actionTakenContainment').value = recordData.actionTaken || ''; // Changed ID
+document.getElementById('statusUpdate').value = recordData.statusUpdate || '';
+document.getElementById('ownerContainment').value = recordData.owner || ''; // Changed ID
+document.getElementById('totalPartsInspected').value = recordData.totalPartsInspected || 0;
+document.getElementById('totalDefectParts').value = recordData.totalDefectParts || 0;
+document.getElementById('defectRate').value = recordData.defectRate || 0.0;
+break;
+}
+```
+
+}
+
+async function deleteRecord(type, id) {
+if (!confirm(‘Are you sure you want to delete this record? This action cannot be undone.’)) {
+return;
+}
+
+```
+try {
+    console.log(`Deleting ${type} record ${id}`);
+    
+    let endpoint = '';
+    
+    switch(type) {
+        case 'claims':
+            endpoint = `/api/quality/bmw-claims/${id}`;
+            break;
+        case 'keyTurns':
+            endpoint = `/api/quality/key-turns/${id}`;
+            break;
+        case 'lineQuality':
+            endpoint = `/api/quality/line-quality/${id}`;
+            break;
+        case 'containment':
+            endpoint = `/api/quality/supplier-containment/${id}`;
+            break;
+        default:
+            showAlert('Unknown record type', 'danger');
+            return;
+    }
+
+    const response = await fetch(endpoint, {
+        method: 'DELETE'
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+        showAlert(result.message || 'Record deleted successfully', 'success');
+        await loadAllQualityData();
+    } else {
+        throw new Error(result.error || 'Failed to delete record');
+    }
+    
+} catch (error) {
+    console.error('Error deleting record:', error);
+    showAlert('Error deleting record: ' + error.message, 'danger');
+}
+```
+
+}
+
+function resetForm() {
+isEditMode = false;
+document.getElementById(‘modalTitle’).innerHTML = ‘<i class="bi bi-plus-circle"></i> Add Quality Record’;
+document.getElementById(‘qualityForm’).reset();
+document.getElementById(‘recordId’).value = ‘’;
+document.getElementById(‘recordType’).value = ‘’;
+
+```
+// Clear specific fields that might not be covered by form.reset()
+document.getElementById('event').value = ''; // ADD THIS
+
+document.getElementById('bmwClaimFields').style.display = 'none';
+document.getElementById('keyTurnFields').style.display = 'none';
+document.getElementById('lineQualityFields').style.display = 'none';
+document.getElementById('containmentFields').style.display = 'none';
+
+const backdrops = document.querySelectorAll('.modal-backdrop');
+backdrops.forEach(backdrop => backdrop.remove());
+document.body.classList.remove('modal-open');
+document.body.style.overflow = '';
+document.body.style.paddingRight = '';
+```
+
+}
+
+async function refreshData() {
+try {
+await loadAllQualityData();
+showAlert(‘Quality data refreshed successfully’, ‘success’);
+} catch (error) {
+console.error(‘Error refreshing data:’, error);
+showAlert(’Error refreshing data: ’ + error.message, ‘danger’);
+}
+}
+
+function showAlert(message, type) {
+console.log(`Alert [${type}]: ${message}`);
+
+```
+const alert = document.createElement('div');
+alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+alert.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+`;
+
+document.body.appendChild(alert);
+
+setTimeout(() => {
+    if (alert.parentNode) {
+        alert.remove();
+    }
+}, 5000);
+```
+
+}
+
+document.addEventListener(‘DOMContentLoaded’, function() {
+const triggerTabList = document.querySelectorAll(’#qualityTabs button[data-bs-toggle=“pill”]’);
+triggerTabList.forEach(triggerEl => {
+const tabTrigger = new bootstrap.Tab(triggerEl);
+
+```
+    triggerEl.addEventListener('click', function (event) {
+        event.preventDefault();
+        console.log('Tab clicked:', triggerEl.id);
+        tabTrigger.show();
+    });
+});
+
+console.log('DOM loaded, initializing quality management...');
+loadAllQualityData();
+```
+
+});
+
+document.addEventListener(‘shown.bs.tab’, function (event) {
+const targetId = event.target.getAttribute(‘data-bs-target’);
+console.log(‘Tab shown:’, targetId);
+
+```
+switch(targetId) {
+    case '#claims-content':
+        console.log('Claims tab is now active');
+        break;
+    case '#key-turns-content':
+        console.log('Key turns tab is now active');
+        break;
+    case '#line-quality-content':
+        console.log('Line quality tab is now active');
+        break;
+    case '#containment-content':
+        console.log('Containment tab is now active');
+        break;
+    case '#scrap-selection-content':
+        console.log('Scrap selection tab is now active');
+        loadScrapSelection();
+        break;
+    case '#mrb-selection-content':  // ADD THIS CASE
+        console.log('MRB selection tab is now active');
+        loadMRBSelection();
+        break;
+}
+```
+
+});
+
+if (typeof bootstrap === ‘undefined’) {
+console.error(‘Bootstrap JavaScript is not loaded!’);
+showAlert(‘Bootstrap JavaScript is required for this page to work properly’, ‘danger’);
+}
+
+async function loadMRBCage() {
+try {
+const response = await fetch(’/api/quality/mrb-cage’);
+const mrbItems = await response.json();
+
+```
+    const tbody = document.getElementById('mrb-tbody');
+    tbody.innerHTML = '';
+
+    mrbItems.forEach(item => {
+        const row = tbody.insertRow();
+        const date = new Date(item.reviewDate);
+        const dateStr = date.toLocaleDateString();
+
+        const statusBadge = getStatusBadge(item.status);
+        const ageBadge = getAgeBadge(item.ageInDays);
+
+        row.innerHTML = `
+            <td>${dateStr}</td>
+            <td>${item.partNumber}</td>
+            <td>${item.quantity.toLocaleString()}</td>
+            <td>${createWrappedText(item.quarantineReason)}</td>
+            <td>${ageBadge}</td>
+            <td>${statusBadge}</td>
+        `;
+    });
+
+    if (mrbItems.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <i class="fas fa-warehouse"></i>
+                    <h3>MRB cage is empty</h3>
+                    <p>No parts pending material review!</p>
+                </td>
+            </tr>
+        `;
+    }
+
+} catch (error) {
+    console.error('Error loading MRB cage:', error);
+    showNotification('Error loading MRB cage', 'error');
+}
+```
+
+}
+
+function getAgeBadge(days) {
+let className = ‘severity-low’;
+if (days > 14) className = ‘severity-critical’;
+else if (days > 7) className = ‘severity-high’;
+else if (days > 3) className = ‘severity-medium’;
+
+```
+return `<span class="severity-badge ${className}">${days} days</span>`;
+```
+
+}
+
+let allScrapReports = [];
+
+async function loadScrapSelection() {
+try {
+const response = await fetch(’/api/quality/scrap-all’);
+
+```
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allScrapReports = Array.isArray(data) ? data : [];
+    displayScrapSelection(allScrapReports);
+    console.log('Scrap selection loaded:', allScrapReports.length);
+} catch (error) {
+    console.error('Error loading scrap selection:', error);
+    showAlert(`Error loading scrap selection: ${error.message}`, 'warning');
+}
+```
+
+}
+
+function displayScrapSelection(scrapReports) {
+const tbody = document.getElementById(‘scrap-selection-tbody’)
+if (!tbody) {
+console.error(‘Scrap selection tbody not found’)
+return
+}
+
+```
+tbody.innerHTML = ''
+
+scrapReports.forEach(item => {
+    const row = tbody.insertRow()
+    
+    let dateStr = 'N/A'
+    if (item.date) {
+        try {
+            const date = new Date(item.date)
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString()
+            }
+        } catch (e) {
+            dateStr = item.date
+        }
+    }
+
+    row.innerHTML = `
+        <td>
+            <div class="form-check">
+                <input class="form-check-input scrap-checkbox" type="checkbox" 
+                       value="${item.qualityID}"
+                       ${item.isSelected ? 'checked' : ''}>
+            </div>
+        </td>
+        <td>${dateStr}</td>
+        <td>${createWrappedText(item.comment, 80)}</td>
+        <td>${createWrappedText(item.why, 60)}</td> 
+    `
+})
+
+if (scrapReports.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No scrap reports found</td></tr>'
+}
+```
+
+}
+
+function createWrappedText(text, maxLength = 120) {
+if (!text) return ‘N/A’;
+
+```
+if (text.length <= maxLength) {
+    return text;
+}
+
+const truncated = text.substring(0, maxLength) + '...';
+return `<span title="${text}">${truncated}</span>`;
+```
+
+}
+
+function selectAllScraps() {
+document.querySelectorAll(’.scrap-checkbox’).forEach(cb => cb.checked = true);
+document.getElementById(‘selectAllCheckbox’).checked = true;
+}
+
+function clearAllScraps() {
+document.querySelectorAll(’.scrap-checkbox’).forEach(cb => cb.checked = false);
+document.getElementById(‘selectAllCheckbox’).checked = false;
+}
+
+function toggleAllScraps(masterCheckbox) {
+document.querySelectorAll(’.scrap-checkbox’).forEach(cb => {
+cb.checked = masterCheckbox.checked;
+});
+}
+
+async function saveScrapSelection() {
+try {
+const selectedIds = Array.from(document.querySelectorAll(’.scrap-checkbox:checked’))
+.map(cb => cb.value);
+
+```
+    const response = await fetch('/api/quality/scrap-selection', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            selectedIds: selectedIds
+        })
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+        showAlert(result.message, 'success');
+    } else {
+        throw new Error(result.error || 'Failed to save selection');
+    }
+
+} catch (error) {
+    console.error('Error saving scrap selection:', error);
+    showAlert('Error saving selection: ' + error.message, 'danger');
+}
+```
+
+}
+
+// Add this to your quality_management.html JavaScript section
+
+// Global variable to store suppliers data
+let suppliersWithLogos = [];
+
+// Load suppliers with logo information
+async function loadSuppliersWithLogos() {
+try {
+const response = await fetch(’/api/suppliers/with-logos’);
+if (!response.ok) {
+throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+}
+const suppliers = await response.json();
+suppliersWithLogos = suppliers || [];
+console.log(‘Loaded suppliers with logos:’, suppliers.length);
+return suppliersWithLogos;
+} catch (error) {
+console.error(‘Error loading suppliers with logos:’, error);
+suppliersWithLogos = [];
+return [];
+}
+}
+
+// Enhanced supplier dropdown with logo preview
+function createSupplierDropdown(containerId, selectedValue = ‘’) {
+const container = document.getElementById(containerId);
+if (!container) {
+console.error(‘Container not found:’, containerId);
+return;
+}
+
+```
+// If no suppliers loaded, show regular input
+if (suppliersWithLogos.length === 0) {
+    container.innerHTML = `
+        <input type="text" class="form-control" id="supplier" 
+               placeholder="Enter supplier name..." value="${selectedValue}">
+    `;
+    return;
+}
+
+// Clear existing content
+container.innerHTML = '';
+
+// Create custom dropdown structure
+const dropdownWrapper = document.createElement('div');
+dropdownWrapper.className = 'supplier-dropdown-wrapper';
+dropdownWrapper.style.cssText = `
+    position: relative;
+    width: 100%;
+`;
+
+// Create display button
+const displayButton = document.createElement('button');
+displayButton.type = 'button';
+displayButton.className = 'supplier-display-btn';
+displayButton.style.cssText = `
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background: white;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+`;
+
+// Create dropdown menu
+const dropdownMenu = document.createElement('div');
+dropdownMenu.className = 'supplier-dropdown-menu';
+dropdownMenu.style.cssText = `
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+`;
+
+// Find selected supplier
+const selectedSupplier = suppliersWithLogos.find(s => s.name === selectedValue || s.id === selectedValue);
+
+// Update display button content
+function updateDisplayButton(supplier = null) {
+    if (supplier) {
+        displayButton.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="position: relative;">
+                    <img src="${supplier.logoPath}" 
+                         alt="${supplier.name}" 
+                         style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; border: 1px solid #e5e7eb;"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                </div>
+                <span style="font-weight: 500; color: #374151;">${supplier.name}</span>
+            </div>
+            <i class="fas fa-chevron-down" style="color: #6b7280; transition: transform 0.2s ease;"></i>
+        `;
+    } else {
+        displayButton.innerHTML = `
+            <span style="color: #9ca3af;">Select supplier...</span>
+            <i class="fas fa-chevron-down" style="color: #6b7280; transition: transform 0.2s ease;"></i>
+        `;
+    }
+}
+
+// Populate dropdown menu
+function populateDropdownMenu() {
+    dropdownMenu.innerHTML = '';
+    
+    // Add search input
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search suppliers...';
+    searchInput.style.cssText = `
+        width: 100%;
+        padding: 0.5rem;
+        border: none;
+        border-bottom: 1px solid #e5e7eb;
+        outline: none;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    `;
+    dropdownMenu.appendChild(searchInput);
+    
+    // Filter and display suppliers
+    function filterAndDisplaySuppliers(searchTerm = '') {
+        const filteredSuppliers = suppliersWithLogos.filter(supplier =>
+            supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        // Remove existing options
+        const existingOptions = dropdownMenu.querySelectorAll('.supplier-option');
+        existingOptions.forEach(option => option.remove());
+        
+        if (filteredSuppliers.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'supplier-option';
+            noResults.style.cssText = `
+                padding: 0.75rem;
+                color: #6b7280;
+                font-style: italic;
+                text-align: center;
+            `;
+            noResults.textContent = 'No suppliers found';
+            dropdownMenu.appendChild(noResults);
+            return;
+        }
+        
+        filteredSuppliers.forEach(supplier => {
+            const option = document.createElement('div');
+            option.className = 'supplier-option';
+            option.dataset.supplierId = supplier.id;
+            option.dataset.supplierName = supplier.name;
+            option.style.cssText = `
+                padding: 0.75rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                transition: background-color 0.15s ease;
+                border-bottom: 1px solid #f3f4f6;
+            `;
+            
+            option.innerHTML = `
+                <div style="position: relative; flex-shrink: 0;">
+                    <img src="${supplier.logoPath}" 
+                         alt="${supplier.name}" 
+                         style="width: 28px; height: 28px; border-radius: 4px; object-fit: cover; border: 1px solid #e5e7eb;"
+                         onerror="this.src='/static/vendor-logos/default.png'; this.style.opacity='0.5';">
+                </div>
+                <div>
+                    <div style="font-weight: 500; color: #374151; font-size: 0.95rem;">${supplier.name}</div>
+                    <div style="font-size: 0.8rem; color: #6b7280;">ID: ${supplier.id}</div>
+                </div>
+            `;
+            
+            option.addEventListener('mouseenter', () => {
+                option.style.backgroundColor = '#f3f4f6';
+            });
+            
+            option.addEventListener('mouseleave', () => {
+                option.style.backgroundColor = 'transparent';
+            });
+            
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectSupplier(supplier);
+                closeDropdown();
+            });
+            
+            dropdownMenu.appendChild(option);
+        });
+    }
+    
+    // Initial population
+    filterAndDisplaySuppliers();
+    
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+        filterAndDisplaySuppliers(e.target.value);
+    });
+    
+    // Focus search input when dropdown opens
+    setTimeout(() => {
+        searchInput.focus();
+    }, 100);
+}
+
+// Functions to open/close dropdown
+function openDropdown() {
+    populateDropdownMenu();
+    dropdownMenu.style.display = 'block';
+    displayButton.querySelector('i').style.transform = 'rotate(180deg)';
+    displayButton.style.borderColor = '#3b82f6';
+    
+    // Add click outside listener
+    setTimeout(() => {
+        document.addEventListener('click', outsideClickListener);
+    }, 0);
+}
+
+function closeDropdown() {
+    dropdownMenu.style.display = 'none';
+    displayButton.querySelector('i').style.transform = 'rotate(0deg)';
+    displayButton.style.borderColor = '#d1d5db';
+    document.removeEventListener('click', outsideClickListener);
+}
+
+function outsideClickListener(e) {
+    if (!dropdownWrapper.contains(e.target)) {
+        closeDropdown();
+    }
+}
+
+// Function to select supplier
+```
+
+// Function to select supplier
+function selectSupplier(supplier) {
+updateDisplayButton(supplier);
+
+```
+// FIXED: Update both visible input and hidden input
+let supplierInput = document.getElementById('supplier');
+if (supplierInput) {
+    supplierInput.value = supplier.name;
+}
+
+// Update hidden input for form submission
+const hiddenInput = container.querySelector('input[name="supplier"]');
+if (hiddenInput) {
+    hiddenInput.value = supplier.name; // Store the name, not the ID
+}
+
+// Trigger custom event
+const event = new CustomEvent('supplierSelected', {
+    detail: { supplier }
+});
+container.dispatchEvent(event);
+```
+
+}
+
+```
+// Event listeners
+displayButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (dropdownMenu.style.display === 'none' || !dropdownMenu.style.display) {
+        openDropdown();
+    } else {
+        closeDropdown();
+    }
+});
+
+// Initialize display
+updateDisplayButton(selectedSupplier);
+
+// Append to wrapper
+dropdownWrapper.appendChild(displayButton);
+dropdownWrapper.appendChild(dropdownMenu);
+
+// Create hidden input for form submission
+const hiddenInput = document.createElement('input');
+hiddenInput.type = 'hidden';
+hiddenInput.name = 'supplier';
+hiddenInput.value = selectedValue;
+dropdownWrapper.appendChild(hiddenInput);
+
+// Append to container
+container.appendChild(dropdownWrapper);
+
+return dropdownWrapper;
+```
+
+}
+
+// Function to display supplier logo in tables
+function getSupplierLogoCell(supplierName, logoPath, logoId) {
+if (!logoPath || !logoId) {
+return `<span style="color: #6b7280;">${supplierName || 'N/A'}</span>`;
+}
+
+```
+return `
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <img src="${logoPath}" 
+             alt="${supplierName}" 
+             style="width: 24px; height: 24px; border-radius: 3px; object-fit: cover; border: 1px solid #e5e7eb; flex-shrink: 0;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.marginLeft='0';">
+        <span style="font-weight: 500; color: #374151;">${supplierName || 'N/A'}</span>
+    </div>
+`;
+```
+
+}
+
+// Update the containment table rendering function
+function displaySupplierContainmentWithLogos(containments) {
+const tbody = document.getElementById(‘containment-tbody’);
+if (!tbody) {
+console.error(‘Containment tbody not found’);
+return;
+}
+
+```
+tbody.innerHTML = '';
+document.getElementById('containment-count').textContent = `${containments.length} action${containments.length !== 1 ? 's' : ''}`;
+
+containments.forEach(containment => {
+    const row = tbody.insertRow();
+    
+    let dateStr = 'N/A';
+    if (containment.createdDate) {
+        try {
+            const date = new Date(containment.createdDate);
+            if (!isNaN(date.getTime())) {
+                dateStr = date.toLocaleString();
+            }
+        } catch (e) {
+            dateStr = containment.createdDate;
+        }
+    }
+
+    const riskBadge = getRiskBadge(containment.riskLevel || 'Medium');
+    const supplierCell = getSupplierLogoCell(
+        containment.supplierName, 
+        containment.supplierLogoPath, 
+        containment.supplierLogoId
+    );
+
+    row.innerHTML = `
+        <td>${dateStr}</td>
+        <td>${supplierCell}</td>
+        <td>${containment.issueDescription || 'N/A'}</td>
+        <td>${containment.actionTaken || 'N/A'}</td>
+        <td>${containment.statusUpdate || 'N/A'}</td>
+        <td>${(containment.totalPartsInspected || 0).toLocaleString()}</td>
+        <td>${(containment.totalDefectParts || 0).toLocaleString()}</td>
+        <td>${(containment.defectRate || 0).toFixed(2)}%</td>
+        <td>${containment.assignedTo || containment.owner || 'N/A'}</td>
+        <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editRecord('containment', '${containment.containmentID || ''}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('containment', '${containment.containmentID || ''}')" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+});
+
+if (containments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No containment actions found</td></tr>';
+}
+```
+
+}
+
+// Initialize suppliers loading when page loads
+document.addEventListener(‘DOMContentLoaded’, function() {
+// Load suppliers first
+loadSuppliersWithLogos().then(() => {
+console.log(‘Suppliers loaded:’, suppliersWithLogos.length);
+
+```
+    // Then set up the toggle form fields
+    const originalToggleFormFields = toggleFormFields;
+    toggleFormFields = function() {
+        originalToggleFormFields();
+        
+        const containmentFields = document.getElementById('containmentFields');
+        if (containmentFields && containmentFields.style.display === 'block') {
+            const supplierContainer = document.getElementById('supplier-container');
+            if (supplierContainer) {
+                if (suppliersWithLogos.length > 0) {
+                    console.log('Creating enhanced dropdown with', suppliersWithLogos.length, 'suppliers');
+                    createSupplierDropdown('supplier-container');
+                } else {
+                    console.warn('No suppliers loaded, keeping regular input');
+                }
+            }
+        }
+    };
+});
+```
+
+});
+
+// MRB Selection Management
+let allMRBParts = [];
+
+async function loadMRBSelection() {
+try {
+console.log(‘Loading MRB selection…’);
+const response = await fetch(’/api/quality/mrb-all’);
+
+```
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('MRB data received:', data);
+    
+    if (data.error) {
+        throw new Error(data.error);
+    }
+    
+    allMRBParts = Array.isArray(data) ? data : [];
+    displayMRBSelection(allMRBParts);
+    
+    // Load the general note separately
+    await loadMRBGeneralNote();
+    
+    console.log('MRB selection loaded:', allMRBParts.length);
+} catch (error) {
+    console.error('Error loading MRB selection:', error);
+    showAlert(`Error loading MRB selection: ${error.message}`, 'warning');
+}
+```
+
+}
+
+function displayMRBSelection(mrbParts) {
+const tbody = document.getElementById(‘mrb-selection-tbody’);
+if (!tbody) {
+console.error(‘MRB selection tbody not found’);
+return;
+}
+
+```
+console.log('Displaying MRB parts:', mrbParts.length);
+tbody.innerHTML = '';
+
+mrbParts.forEach(item => {
+    const row = tbody.insertRow();
+    
+    const ageBadge = getAgeBadge(item.ageInDays);
+
+    row.innerHTML = `
+        <td>
+            <div class="form-check">
+                <input class="form-check-input mrb-checkbox" type="checkbox" 
+                       value="${item.mrbID}"
+                       ${item.isSelected ? 'checked' : ''}>
+            </div>
+        </td>
+        <td style="font-size: 0.85em;">${item.partNumber}</td>
+        <td>${createWrappedText(item.partDescription, 80)}</td>
+        <td style="text-align: center;">${item.quantity.toLocaleString()}</td>
+        <td>${createWrappedText(item.quarantineReason, 60)}</td>
+        <td>${ageBadge}</td>
+        <td>
+            <input type="text" 
+                   class="form-control form-control-sm mrb-note" 
+                   data-mrb-id="${item.mrbID}"
+                   value="${item.note || ''}"
+                   placeholder="Add note...">
+        </td>
+    `;
+});
+
+if (mrbParts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No MRB parts found</td></tr>';
+}
+```
+
+}
+
+function selectAllMRB() {
+document.querySelectorAll(’.mrb-checkbox’).forEach(cb => cb.checked = true);
+document.getElementById(‘selectAllMRBCheckbox’).checked = true;
+}
+
+function clearAllMRB() {
+document.querySelectorAll(’.mrb-checkbox’).forEach(cb => cb.checked = false);
+document.getElementById(‘selectAllMRBCheckbox’).checked = false;
+}
+
+function toggleAllMRB(masterCheckbox) {
+document.querySelectorAll(’.mrb-checkbox’).forEach(cb => {
+cb.checked = masterCheckbox.checked;
+});
+}
+
+async function saveMRBSelection() {
+try {
+// Get the general note text
+const generalNote = document.getElementById(‘mrbGeneralNote’).value.trim();
+
+```
+    // ALWAYS save the general note (even if empty) to allow clearing it
+    try {
+        const noteResponse = await fetch('/api/quality/mrb-general-note', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                generalNote: generalNote  // This will be empty string if cleared
+            })
+        });
+        
+        const noteResult = await noteResponse.json();
+        if (!noteResult.success) {
+            console.warn('Failed to save general note:', noteResult.error);
+        }
+    } catch (noteError) {
+        console.warn('Error saving general note:', noteError);
+    }
+    
+    // Now save the part selections with individual notes
+    const selectedItems = [];
+    
+    document.querySelectorAll('.mrb-checkbox').forEach(cb => {
+        const mrbID = cb.value;
+        const isSelected = cb.checked;
+        const noteInput = document.querySelector(`.mrb-note[data-mrb-id="${mrbID}"]`);
+        const note = noteInput ? noteInput.value : '';
+        
+        selectedItems.push({
+            mrbID: mrbID,
+            isSelected: isSelected,
+            note: note
+        });
+    });
+
+    const response = await fetch('/api/quality/mrb-selection', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            selectedItems: selectedItems
+        })
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+        let message = result.message;
+        if (generalNote) {
+            message += ' (including general note)';
+        } else {
+            message += ' (general note cleared)';
+        }
+        showAlert(message, 'success');
+    } else {
+        throw new Error(result.error || 'Failed to save selection');
+    }
+
+} catch (error) {
+    console.error('Error saving MRB selection:', error);
+    showAlert('Error saving selection: ' + error.message, 'danger');
+}
+```
+
+}
+// Load general note from server
+async function loadMRBGeneralNote() {
+try {
+const response = await fetch(’/api/quality/mrb-general-note’);
+if (response.ok) {
+const data = await response.json();
+if (data.note) {
+document.getElementById(‘mrbGeneralNote’).value = data.note;
+}
+}
+} catch (error) {
+console.error(‘Error loading MRB general note:’, error);
+}
+}
+
+// Save general note to server
+async function saveMRBGeneralNote() {
+try {
+const noteText = document.getElementById(‘mrbGeneralNoteInput’).value.trim();
+
+```
+    const response = await fetch('/api/quality/mrb-general-note', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            generalNote: noteText
+        })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+        showNotification('General note saved successfully!', 'success');
+        
+        // Close the modal or edit mode
+        closeMRBGeneralNoteModal(); // or whatever your close function is called
+        
+        // **ADD THIS LINE** - Refresh the MRB data to show the updated note
+        await loadMRBCage();
+    } else {
+        throw new Error(result.error || 'Failed to save note');
+    }
+} catch (error) {
+    console.error('Error saving MRB general note:', error);
+    showNotification('Error saving general note', 'error');
+}
+```
+
+}
+
+// ─── BMW Quality Claims — Photo Upload & Viewer ──────────────────────────────
+
+let claimPendingPhotos = [];
+
+function handleClaimPhotoSelect(event) {
+addClaimPhotos(Array.from(event.target.files));
+event.target.value = ‘’;
+}
+
+function handleClaimPhotoDrop(event) {
+event.preventDefault();
+document.getElementById(‘claimPhotoDropZone’).style.background = ‘#f8f9ff’;
+const files = Array.from(event.dataTransfer.files).filter(f => f.type.startsWith(‘image/’));
+addClaimPhotos(files);
+}
+
+function addClaimPhotos(files) {
+files.forEach(file => {
+const index = claimPendingPhotos.length;
+claimPendingPhotos.push(file);
+renderClaimPhotoThumb(file, index);
+});
+}
+
+function renderClaimPhotoThumb(file, index) {
+const grid = document.getElementById(‘claimPhotoPreviewGrid’);
+const reader = new FileReader();
+reader.onload = e => {
+const wrap = document.createElement(‘div’);
+wrap.id = `claim-thumb-${index}`;
+wrap.style.cssText = ‘position:relative;width:80px;height:80px;flex-shrink:0;’;
+wrap.innerHTML = ` <img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #495a7a;"> <button type="button" onclick="removeClaimPhoto(${index})" style="position:absolute;top:-6px;right:-6px;background:#dc3545;color:white; border:none;border-radius:50%;width:20px;height:20px;font-size:11px; line-height:1;cursor:pointer;padding:0;">✕</button>`;
+grid.appendChild(wrap);
+};
+reader.readAsDataURL(file);
+}
+
+function removeClaimPhoto(index) {
+claimPendingPhotos[index] = null;
+const el = document.getElementById(`claim-thumb-${index}`);
+if (el) el.remove();
+}
+
+async function uploadClaimPhotos(claimId) {
+const toUpload = claimPendingPhotos.filter(f => f !== null);
+if (!toUpload.length) return;
+for (const file of toUpload) {
+const fd = new FormData();
+fd.append(‘photo’, file);
+try {
+await fetch(`/api/photos/upload/claim/${claimId}`, { method: ‘POST’, body: fd });
+} catch (err) {
+console.error(‘Claim photo upload failed:’, err);
+}
+}
+claimPendingPhotos = [];
+const grid = document.getElementById(‘claimPhotoPreviewGrid’);
+if (grid) grid.innerHTML = ‘’;
+}
+
+// Clear staged photos when modal closes
+document.getElementById(‘addQualityModal’).addEventListener(‘hidden.bs.modal’, function () {
+claimPendingPhotos = [];
+const grid = document.getElementById(‘claimPhotoPreviewGrid’);
+if (grid) grid.innerHTML = ‘’;
+});
+
+// ─── BMW Claims Photo Viewer ─────────────────────────────────────────────────
+
+let activeClaimTooltip = null;
+
+async function showClaimPhotosManagement(event, claimId) {
+event.stopPropagation();
+
+```
+if (activeClaimTooltip) {
+    activeClaimTooltip.remove();
+    activeClaimTooltip = null;
+}
+
+let photos = [];
+try {
+    const resp = await fetch(`/api/photos/claim/${claimId}`);
+    photos = await resp.json();
+} catch (e) {
+    console.error('Error loading claim photos:', e);
+}
+
+const tooltip = document.createElement('div');
+tooltip.style.cssText = `
+    position: fixed; z-index: 99999;
+    background: white; border: 3px solid #495a7a; border-radius: 16px;
+    padding: 1.25rem; box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+    min-width: 360px; max-width: 680px;
+`;
+
+let content = `
+    <div style="font-weight:700; color:#495a7a; margin-bottom:0.75rem;
+                padding-bottom:0.5rem; border-bottom:2px solid #e5e7eb; font-size:1.05rem;">
+        <i class="bi bi-images"></i> Claim #${claimId} — Photos
+    </div>`;
+
+if (photos.length > 0) {
+    content += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;">`;
+    photos.forEach((p, i) => {
+        content += `
+            <div style="position:relative;">
+                <div style="position:absolute;top:6px;left:6px;background:linear-gradient(135deg,#495a7a,#5c6f94);
+                            color:white;padding:0.2rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">
+                    Photo ${i + 1}
+                </div>
+                <img src="${p.url}" alt="Photo ${i + 1}"
+                     style="width:100%;border-radius:8px;max-height:260px;object-fit:contain;border:1px solid #e5e7eb;">
+            </div>`;
+    });
+    content += `</div>`;
+} else {
+    content += `
+        <div style="text-align:center;padding:1.5rem;color:#6b7280;">
+            <i class="bi bi-camera" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
+            No photos uploaded for this claim yet.
+        </div>`;
+}
+
+tooltip.innerHTML = content;
+document.body.appendChild(tooltip);
+activeClaimTooltip = tooltip;
+
+// Position near clicked element
+const rect = event.currentTarget.getBoundingClientRect();
+const tw = tooltip.getBoundingClientRect().width;
+const th = tooltip.getBoundingClientRect().height;
+let left = rect.left + rect.width / 2 - tw / 2;
+let top  = rect.top - th - 12;
+if (left < 10) left = 10;
+if (left + tw > window.innerWidth - 10) left = window.innerWidth - tw - 10;
+if (top < 10) top = rect.bottom + 12;
+tooltip.style.left = left + 'px';
+tooltip.style.top  = top  + 'px';
+
+tooltip.addEventListener('mouseleave', () => {
+    tooltip.remove();
+    activeClaimTooltip = null;
+});
+```
+
+}
+
+// Close viewer when clicking elsewhere
+document.addEventListener(‘click’, function(e) {
+if (activeClaimTooltip &&
+!e.target.closest(’.sdr-image-icon’) &&
+!activeClaimTooltip.contains(e.target)) {
+activeClaimTooltip.remove();
+activeClaimTooltip = null;
+}
+});
+
+// ─── End BMW Claims photo helpers ────────────────────────────────────────────
+
+```
+</script>
+```
+
+</body>
+</html>
